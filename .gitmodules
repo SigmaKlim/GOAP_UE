@@ -1,0 +1,3 @@
+[submodule "Source/Ai_Test2/GOAP"]
+	path = Source/Ai_Test2/GOAP
+	url = https://github.com/SigmaKlim/GOAP.git

@@ -1,0 +1,25 @@
+dim = 500	 k = 0
+start = 0	 finish = 499
+path: 0 87 402 499 
+cost = 8
+
+dim = 500	 k = 1
+start = 0	 finish = 499
+path: 0 298 499 
+cost = 6
+
+dim = 500	 k = 2
+start = 0	 finish = 499
+path: 0 387 449 3 358 499 
+cost = 7
+
+dim = 500	 k = 3
+start = 0	 finish = 499
+path: 0 339 33 281 383 53 499 
+cost = 9
+
+dim = 500	 k = 4
+start = 0	 finish = 499
+path: 0 32 371 393 499 
+cost = 5
+

@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include "Planner.h"
+#include "GOAP/Planner.h"
+
 #include "CoreMinimal.h"
 
 

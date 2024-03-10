@@ -1,0 +1,125 @@
+﻿  Helper.cpp
+  Planner.cpp
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(162,26): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(104,8): message : while compiling class template member function 'bool AStarSolver<Vertex>::Pathfind(Path<t_vertex> &,t_vertex,t_vertex,TelemetryData *) const'
+          with
+          [
+              t_vertex=Vertex
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\Planner.cpp(49,18): message : see the first reference to 'AStarSolver<Vertex>::Pathfind' in 'Planner::ConstructPlan'
+D:\VisualStudioProjects\GOAP2\GOAP2\Planner.h(42,24): message : see reference to class template instantiation 'AStarSolver<Vertex>' being compiled
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(60,22): warning C4244: 'return': conversion from 'double' to 'lli', possible loss of data
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(59,9): message : while compiling class template member function 'lli FibonacciHeap<Node>::_D(lli)'
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(127,15): message : see the first reference to 'FibonacciHeap<Node>::_D' in 'FibonacciHeap<Node>::_consolidate'
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(258,31): message : see the first reference to 'FibonacciHeap<Node>::_consolidate' in 'FibonacciHeap<Node>::extractMin'
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(142,16): message : see the first reference to 'FibonacciHeap<Node>::extractMin' in 'AStarSolver<Vertex>::Pathfind'
+D:\VisualStudioProjects\GOAP2\GOAP2\Planner.cpp(49,18): message : see the first reference to 'AStarSolver<Vertex>::Pathfind' in 'Planner::ConstructPlan'
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(108,1): message : see reference to class template instantiation 'FibonacciHeap<Node>' being compiled
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(219,2): message : see reference to class template instantiation 'AStarSolver<t_vertex>' being compiled
+  Source.cpp
+D:\VisualStudioProjects\GOAP2\GOAP2\Testing.h(39,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(162,26): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(104,8): message : while compiling class template member function 'bool AStarSolver<unsigned int>::Pathfind(Path<t_vertex> &,t_vertex,t_vertex,TelemetryData *) const'
+          with
+          [
+              t_vertex=unsigned int
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\Testing.h(58,15): message : see the first reference to 'AStarSolver<unsigned int>::Pathfind' in 'TestNumeric'
+D:\VisualStudioProjects\GOAP2\GOAP2\Navigation\NavPathfinder.h(5,30): message : see reference to class template instantiation 'AStarSolver<unsigned int>' being compiled
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(60,22): warning C4244: 'return': conversion from 'double' to 'lli', possible loss of data
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(59,9): message : while compiling class template member function 'lli FibonacciHeap<Node>::_D(lli)'
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(127,15): message : see the first reference to 'FibonacciHeap<Node>::_D' in 'FibonacciHeap<Node>::_consolidate'
+D:\VisualStudioProjects\GOAP2\GOAP2\Tools\FibonacciHeap.hpp(258,31): message : see the first reference to 'FibonacciHeap<Node>::_consolidate' in 'FibonacciHeap<Node>::extractMin'
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(142,16): message : see the first reference to 'FibonacciHeap<Node>::extractMin' in 'AStarSolver<unsigned int>::Pathfind'
+D:\VisualStudioProjects\GOAP2\GOAP2\Testing.h(58,15): message : see the first reference to 'AStarSolver<unsigned int>::Pathfind' in 'TestNumeric'
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(108,1): message : see reference to class template instantiation 'FibonacciHeap<Node>' being compiled
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(219,2): message : see reference to class template instantiation 'AStarSolver<t_vertex>' being compiled
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(62,12): error C2228: left of '.hash' must have class/struct/union
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(62,12): message : type is 'const t_vertex'
+          with
+          [
+              t_vertex=unsigned int
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(60,14): message : while compiling class template member function 'size_t VertexKey<t_vertex>::operator ()(const t_vertex &) const'
+          with
+          [
+              t_vertex=unsigned int
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xhash(147,9): message : see the first reference to 'VertexKey<t_vertex>::operator ()' in 'std::_Uhash_compare<_Kty,_Hasher,_Keyeq>::operator ()'
+          with
+          [
+              t_vertex=unsigned int
+          ]
+          and
+          [
+              _Kty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xhash(1227,9): message : see the first reference to 'std::_Uhash_compare<_Kty,_Hasher,_Keyeq>::operator ()' in 'std::_Hash<std::_Umap_traits<_Kty,_Ty,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>>::find'
+          with
+          [
+              _Kty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>
+          ]
+          and
+          [
+              _Kty=unsigned int,
+              _Ty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>,
+              _Alloc=std::allocator<std::pair<const unsigned int,unsigned int>>
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(159,10): message : see the first reference to 'std::_Hash<std::_Umap_traits<_Kty,_Ty,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>>::find' in 'AStarSolver<unsigned int>::Pathfind'
+          with
+          [
+              _Kty=unsigned int,
+              _Ty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>,
+              _Alloc=std::allocator<std::pair<const unsigned int,unsigned int>>
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\Testing.h(58,15): message : see the first reference to 'AStarSolver<unsigned int>::Pathfind' in 'TestNumeric'
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xhash(126): message : see reference to class template instantiation 'VertexKey<t_vertex>' being compiled
+          with
+          [
+              t_vertex=unsigned int
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\unordered_map(30,29): message : see reference to class template instantiation 'std::_Uhash_compare<_Kty,_Hasher,_Keyeq>' being compiled
+          with
+          [
+              _Kty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xhash(334,1): message : see reference to class template instantiation 'std::_Umap_traits<_Kty,_Ty,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>' being compiled
+          with
+          [
+              _Kty=unsigned int,
+              _Ty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>,
+              _Alloc=std::allocator<std::pair<const unsigned int,unsigned int>>
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\unordered_map(67,30): message : see reference to class template instantiation 'std::_Hash<std::_Umap_traits<_Kty,_Ty,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>>' being compiled
+          with
+          [
+              _Kty=unsigned int,
+              _Ty=unsigned int,
+              _Hasher=VertexKey<unsigned int>,
+              _Keyeq=VertexEqual<unsigned int>,
+              _Alloc=std::allocator<std::pair<const unsigned int,unsigned int>>
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(114): message : see reference to class template instantiation 'std::unordered_map<t_vertex,unsigned int,VertexKey<t_vertex>,VertexEqual<t_vertex>,std::allocator<std::pair<const unsigned int,unsigned int>>>' being compiled
+          with
+          [
+              t_vertex=unsigned int
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\AStar.h(104,8): message : while compiling class template member function 'bool AStarSolver<unsigned int>::Pathfind(Path<t_vertex> &,t_vertex,t_vertex,TelemetryData *) const'
+          with
+          [
+              t_vertex=unsigned int
+          ]
+D:\VisualStudioProjects\GOAP2\GOAP2\Testing.h(58,15): message : see the first reference to 'AStarSolver<unsigned int>::Pathfind' in 'TestNumeric'
+  Generating Code...

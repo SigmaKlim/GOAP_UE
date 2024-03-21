@@ -32,7 +32,7 @@ void UGoapController::BeginPlay()
 void UGoapController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("Goap is on!!!"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("Goap is on!!!"));
 	// ...
 }
 

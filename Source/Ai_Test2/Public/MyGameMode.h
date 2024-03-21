@@ -9,10 +9,17 @@
 /**
  * 
  */
+class Helper;
+
 UCLASS()
 class AI_TEST2_API AMyGameMode : public AGameModeBase
 {
 	AMyGameMode();
 	GENERATED_BODY()
 	virtual void BeginPlay() override;
+
+	void InitializeGoap();
+
+	void InitializeGAttributes(const Helper& helper);
+	void InitializeGActions(const Helper& helper);
 };

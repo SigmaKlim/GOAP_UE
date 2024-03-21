@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../../Conditions/Basic/ConditionSet.h"
-#include "../../DataBase.h"
+
 class Goal
 {
 public:

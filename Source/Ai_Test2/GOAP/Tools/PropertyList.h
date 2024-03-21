@@ -3,6 +3,8 @@
 #include <cassert>
 #include <vector>
 
+#include "AssertMacro.h"
+
 template <typename T>
 class PropertyList
 {
@@ -24,12 +26,12 @@ public:
     virtual ~PropertyList() = default;
     bool IsAffected(size_t index) const
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         return _affectedMask[index];
     }
     void SetProperty(size_t index, const T& property)
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         _properties[index] = property;
         if (_affectedMask[index] == false)
         {
@@ -39,13 +41,13 @@ public:
     }
     const T& GetProperty(size_t index) const
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         return _properties[index];
     }
     //Marks property by index as unaffected. Does NOT delete it from memory.
     void ClearValue(size_t index)
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         _affectedMask[index] = false;
         _affectedPropertiesNum--;
     }

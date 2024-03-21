@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "../../DataBase.h"
 #include "../../Conditions/Basic/ConditionSet.h"
 #include "../../ValueSet.h"
 #include "../../SupplementalData.h"

@@ -38,7 +38,7 @@ void GController::Update()
         _currentPlan.GoalName = (*DataPtr->GoalCatalogue.GetName(_currentStrategy.GoalIds[_currentGoalIndex]));
         _currentPlan.StartState = _agentState;
         _isGoalFinished = false;
-        assert(PlannerPtr->ConstructPlan(_currentPlan, GenerateSupData()));
+        MY_ASSERT(PlannerPtr->ConstructPlan(_currentPlan, GenerateSupData()));
         _currentActionIndex = 0;
         //debug
         std::cout << "Plan for goal " << _currentPlan.GoalName << " constructed!\n";
@@ -67,7 +67,7 @@ void GController::UpdateGoalPriority(const std::string& name, bool mustRebuildSt
 {
     auto goalPtr = *DataPtr->GoalCatalogue.GetItem(name);
     auto goalId = *DataPtr->GoalCatalogue.GetId(name);
-    assert(goalPtr != nullptr);
+    MY_ASSERT(goalPtr != nullptr);
     _goalPriorities[goalId] = goalPtr->UpdatePriority();
     _mustBuildStrategy = mustRebuildStrategy;
 }

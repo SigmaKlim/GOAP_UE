@@ -1,19 +1,19 @@
 ﻿#include "Helper.h"
 
 
-void Helper::RegisterAttribute(const std::string& name, IAttribute* attributePtr) const
+bool Helper::RegisterAttribute(const std::string& name, IAttribute* attributePtr) const
 {
-    assert(_data.AttributeCatalogue.AddItem(name, std::shared_ptr<IAttribute>(attributePtr)));
+    return _data.AttributeCatalogue.AddItem(name, std::shared_ptr<IAttribute>(attributePtr));
 }
 
-void Helper::RegisterGoal(const std::string& name, Goal* goalPtr) const
+bool Helper::RegisterGoal(const std::string& name, Goal* goalPtr) const
 {
-    assert(_data.GoalCatalogue.AddItem(name, std::shared_ptr<Goal>(goalPtr)));
+    return _data.GoalCatalogue.AddItem(name, std::shared_ptr<Goal>(goalPtr));
 }
 
-void Helper::RegisterAction(const std::string& name, IAction* actionPtr) const
+bool Helper::RegisterAction(const std::string& name, IAction* actionPtr) const
 {
-    assert(_data.ActionCatalogue.AddItem(name, std::shared_ptr<IAction>(actionPtr)));
+    return _data.ActionCatalogue.AddItem(name, std::shared_ptr<IAction>(actionPtr));
 }
 //
 // void Helper::InitState(const ValueSet& state)

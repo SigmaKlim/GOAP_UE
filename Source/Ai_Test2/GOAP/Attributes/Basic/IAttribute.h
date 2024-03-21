@@ -2,8 +2,9 @@
 #include <memory>
 #include <string>
 #include "../../SupplementalData.h"
-#include "../../DataBase.h"
 
+
+class DataBase;
 typedef int t_value;
 struct ICondition;
 

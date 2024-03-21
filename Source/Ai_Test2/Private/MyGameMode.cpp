@@ -3,6 +3,7 @@
 
 #include "MyGameMode.h"
 #include "../GOAP/GInclude.h"
+#include <Misc/AssertionMacros.h>
 
 AMyGameMode::AMyGameMode()
 {
@@ -13,6 +14,7 @@ void AMyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeGoap();
+
 }
 
 void AMyGameMode::InitializeGoap()

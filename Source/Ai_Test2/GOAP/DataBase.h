@@ -1,14 +1,15 @@
 ﻿#pragma once
 #include <memory>
 
+#include "Actions/Basic/IAction.h"
+#include "Attributes/Basic/IAttribute.h"
+#include "Goals/Basic/Goal.h"
+
 #include "Navigation/Navigator.h"
 #include "Tools/Catalogue.h"
 
 
-class GController;
-class IAction;
-class Goal;
-class IAttribute;
+
 
 //A base class for access to all data catalogues
 class DataBase

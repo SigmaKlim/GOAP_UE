@@ -45,7 +45,7 @@ Planner::Planner(const DataBase& data) : _data(data)
 
 bool Planner::ConstructPlan(Plan& plan, SupplementalData initData) const
 {
-    assert(plan.StartState.NumAffected() == plan.StartState.Size());
+    MY_ASSERT(plan.StartState.NumAffected() == plan.StartState.Size());
     //We convert startState to a condition set made of Equal conditions
     ConditionSet targetConditionSet(_data.AttributeCatalogue.Size());
     for (unsigned i = 0; i < _data.AttributeCatalogue.Size(); i++)

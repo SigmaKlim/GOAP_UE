@@ -1,5 +1,5 @@
 ﻿#include "Navigator.h"
-
+#include "../Tools/AssertMacro.h"
 #include <cmath>
 
 
@@ -10,28 +10,28 @@ void Navigator::AddNode(const std::string& name, int id, std::vector<float> posi
     if (fres == _nodeMap.end())
         _nodeMap.insert({name, {id}});
     else
-        assert(fres->second.insert(id).second);
-    assert(position.size() == 3);
-    assert(_positions.insert({id, position}).second);
+        MY_ASSERT(fres->second.insert(id).second);
+    MY_ASSERT(position.size() == 3);
+    MY_ASSERT(_positions.insert({id, position}).second);
 }
 
 const std::unordered_set<int>& Navigator::GetNodesByName(const std::string& name) const
 {
     auto fres = _nodeMap.find(name);
-    assert(fres != _nodeMap.end());
+    MY_ASSERT(fres != _nodeMap.end());
     return fres->second;
 }
 
 float Navigator::GetDistance(int from, int to) const
 {
-    assert(from != -1 && to != -1);
+    MY_ASSERT(from != -1 && to != -1);
     if (from == 0 || to == 0)
         return (float)rand() / RAND_MAX * _maxDistance;
     auto fresFrom = _positions.find(from);
     auto& fromPos = fresFrom->second;
-    assert(fresFrom != _positions.end());
+    MY_ASSERT(fresFrom != _positions.end());
     auto fresTo = _positions.find(to);
-    assert(fresTo != _positions.end());
+    MY_ASSERT(fresTo != _positions.end());
     auto& toPos = fresTo->second;
     return sqrt(powf(toPos[0] - fromPos[0],2.0f) +
                 powf(toPos[1] - fromPos[1],2.0f) +
@@ -50,6 +50,6 @@ std::string Navigator::GetNodeName(int nodeId) const
     for (auto& nodes : _nodeMap)
         if (nodes.second.contains(nodeId))
             return nodes.first;
-    assert(false);
+    MY_ASSERT(false);
     return "";
 }

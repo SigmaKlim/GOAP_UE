@@ -8,7 +8,7 @@ struct ValueSet : PropertyList<int>
     
     void Modify(const ValueSet& affectingValueSet)
     {
-        assert(Size() == affectingValueSet.Size());
+        MY_ASSERT(Size() == affectingValueSet.Size());
         for (size_t i = 0; i < Size(); i++)
             if (affectingValueSet.IsAffected(i))
                 SetValue(i, affectingValueSet.GetProperty(i));

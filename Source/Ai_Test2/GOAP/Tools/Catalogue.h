@@ -5,7 +5,7 @@ template <typename t_obj>
 class Catalogue
 {
 public:
-    Catalogue() : NameIterator(names), ObjectIterator(objects) {}
+    Catalogue() : nRange(names), oRange(objects) {}
     ~Catalogue();
     bool                AddItem     (const std::string& name, const t_obj& object);
     bool                Contains    (const std::string& name) const;
@@ -16,9 +16,9 @@ public:
     const size_t*       GetId       (const std::string& name) const;
     bool                RemoveItem  (const std::string& name);
     size_t              Size        () const;
-    struct NamesRangeLoop
+    struct NRange
     {
-        NamesRangeLoop(const std::vector<const std::string*>& names) : Names(names) {}
+        NRange(const std::vector<const std::string*>& names) : Names(names) {}
         auto begin() const
         {
             return Names.begin();
@@ -28,10 +28,10 @@ public:
             return Names.end();
         }
         const std::vector<const std::string*>& Names;
-    } NameIterator; // for range-loop by names
-    struct ObjectRangeLoop
+    } nRange; // for range-loop by names
+    struct ORange
     {
-        ObjectRangeLoop(const std::vector<t_obj>& objects) : Objects(objects) {}
+        ORange(const std::vector<t_obj>& objects) : Objects(objects) {}
         auto begin() const
         {
             return Objects.begin();
@@ -41,7 +41,7 @@ public:
             return Objects.end();
         }
         const std::vector<t_obj>& Objects;
-    } ObjectIterator; // for range-loop by objects
+    } oRange; // for range-loop by objects
 private:
     std::unordered_map<std::string, size_t> nameIdMap;
     std::vector<const std::string*> names;

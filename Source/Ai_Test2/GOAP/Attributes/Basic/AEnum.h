@@ -6,6 +6,7 @@
 class AEnum : public IAttribute
 {
 public:
+    AEnum(const std::vector<std::string>& enumerators) : ENUMERATORS(enumerators) {}
     float GetDifference(t_value value1, t_value value2, const SupplementalData& userData) const override
     {
         return (float)(value1 != value2); 
@@ -14,4 +15,12 @@ public:
     {
         return 1.0f;
     }
+
+    std::string GetEnumeratorString(t_value value) const override
+    {
+        assert(value <= ENUMERATORS.size());
+        return ENUMERATORS[value];
+    }
+private:
+    std::vector<std::string> ENUMERATORS;
 };

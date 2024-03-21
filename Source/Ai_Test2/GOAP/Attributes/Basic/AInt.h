@@ -16,6 +16,11 @@ public:
     {
         return (float)MAX_VALUE;
     }
+
+    std::string GetEnumeratorString(t_value value) const override
+    {
+        return std::to_string(value);
+    }
     
 private:
     const t_value MAX_VALUE;

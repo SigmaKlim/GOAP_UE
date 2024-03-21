@@ -16,12 +16,9 @@ public:
     }
     PropertyList& operator=(const PropertyList& other)
     {
-        _properties.resize(other.Size());
-        _affectedMask.resize(other.Size(), false);
-        _affectedPropertiesNum = 0;
-        for (unsigned i = 0; i < other.Size(); i++)
-            if (other.IsAffected(i))
-                SetProperty(i, other.GetProperty(i));
+        _properties = other._properties;
+        _affectedMask = other._affectedMask;
+        _affectedPropertiesNum = other._affectedPropertiesNum;
         return *this;
     }
     virtual ~PropertyList() = default;
@@ -34,8 +31,11 @@ public:
     {
         assert(index < Size());
         _properties[index] = property;
-        _affectedMask[index] = true;
-        _affectedPropertiesNum++;
+        if (_affectedMask[index] == false)
+        {
+            _affectedMask[index] = true;
+            _affectedPropertiesNum++;
+        }
     }
     const T& GetProperty(size_t index) const
     {
@@ -57,6 +57,11 @@ public:
     size_t NumAffected() const
     {
         return _affectedPropertiesNum;
+    }
+    void Clear()
+    {
+        for (size_t i = 0; i < Size(); i++)
+            ClearValue(i);
     }
 protected:
     std::vector<T>      _properties;

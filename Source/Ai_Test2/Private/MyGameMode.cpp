@@ -4,6 +4,7 @@
 #include "MyGameMode.h"
 #include "../GOAP/GInclude.h"
 #include <Misc/AssertionMacros.h>
+#include "../SoftCheckMacro.h"
 
 AMyGameMode::AMyGameMode()
 {
@@ -13,35 +14,65 @@ AMyGameMode::AMyGameMode()
 void AMyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	InitializeGoap();
+	
 
+}
+
+void AMyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	InitializeGoap();
 }
 
 void AMyGameMode::InitializeGoap()
 {
-	DataBase globalData;
-	Helper helper(globalData);
-	InitializeGAttributes(helper);
-
-	Planner globalPlanner(globalData);
-	Strategist globalStrategist(globalData);
+	GlobalDataPtr = std::make_shared<DataBase>();
+	Helper helper(*GlobalDataPtr);
+	InitializeGAttributes(*GlobalDataPtr);
+	InitializeGActions(*GlobalDataPtr, helper);
+	InitializeGGoals(*GlobalDataPtr, helper);
+	GlobalStrategistPtr = std::make_shared<Strategist>(*GlobalDataPtr);
+	GlobalPlannerPtr = std::make_shared<Planner>(*GlobalDataPtr);
 }
 
 
-void AMyGameMode::InitializeGAttributes(const Helper& helper)
+void AMyGameMode::InitializeGAttributes(DataBase & data)
 {
-	helper.RegisterAttribute("AIsCrouching", new ABool);
+	SOFT_CHECK(data.RegisterAttribute("AIsCrouching", new ABool), "Failed to register AIsCrouching.");
+	//
 
+	for (auto& aName : data.AttributeCatalogue.nRange)
+		AttributeNames.Add(FString(aName->c_str()));
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Attributes have been registered."));
 }
 
-void AMyGameMode::InitializeGActions(const Helper& helper)
+void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 {
 	ConditionSet	cCrouch = helper.MakeConditionSet({});
 	ValueSet		eCrouch = helper.MakeValueSet({ {"AIsCrouching", true} });
-	helper.RegisterAction("AcCrouch", new AcSimple(cCrouch, eCrouch, 3));
+	SOFT_CHECK(data.RegisterAction("AcCrouch", new AcSimple(cCrouch, eCrouch, 3)), "Failed to register AcCrouch.");
 
 	ConditionSet	cStand = helper.MakeConditionSet({});
 	ValueSet		eStand = helper.MakeValueSet({ {"AIsCrouching", false} });
-	helper.RegisterAction("AcStand", new AcSimple(cStand, eStand, 4));
+	SOFT_CHECK(data.RegisterAction("AcStand", new AcSimple(cStand, eStand, 4)), "Failed to register AcStand.");
+
+
+	for (auto& aName : data.ActionCatalogue.nRange)
+		AttributeNames.Add(FString(aName->c_str()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Actions have been registered."));
+
+}
+
+void AMyGameMode::InitializeGGoals(DataBase& data, const Helper& helper)
+{
+	ConditionSet gCrouch = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eTrue)} });
+	SOFT_CHECK(data.RegisterGoal("GCrouch", new GTest(gCrouch, 5.0f)), "Failed to register GCrouch.");
+
+	ConditionSet gStand = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eFalse)} });
+	SOFT_CHECK(data.RegisterGoal("GStand", new GTest(gStand, 5.0f)), "Failed to register GStand.");
+
+
+	for (auto& gName : data.GoalCatalogue.nRange)
+		AttributeNames.Add(FString(gName->c_str()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Goals have been registered."));
 }

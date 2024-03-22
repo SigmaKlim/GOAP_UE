@@ -14,9 +14,9 @@ public:
     ValueSet OverrideAgentState(const ValueSet& resultState) override
     {
         auto overridenState = resultState;
-        auto iAtNode = *DataPtr->AttributeCatalogue.GetId("atNode");
-        if (resultState.GetValue(iAtNode) == -1)
-            overridenState.SetValue(iAtNode, 0);
+        //auto iAtNode = *DataPtr->AttributeCatalogue.GetId("atNode");
+        //if (resultState.GetValue(iAtNode) == -1)
+        //    overridenState.SetValue(iAtNode, 0);
         return overridenState;
     }
 private:

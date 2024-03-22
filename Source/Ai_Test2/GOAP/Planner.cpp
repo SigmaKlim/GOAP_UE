@@ -1,6 +1,6 @@
 ﻿#include "Planner.h"
 
-#include "GController.h"
+#include "GoapController.h"
 #include "Conditions/Basic/ConditionSet.h"
 #include "Conditions/Special/CEqual.h"
 
@@ -39,7 +39,7 @@ size_t VertexKey<Vertex>::operator()(const Vertex& k) const
 
 Planner::Planner(const DataBase& data) : _data(data)
 {
-    GController::PlannerPtr		= this;
+    UGoapController::PlannerPtr		= this;
 }
 
 

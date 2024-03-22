@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <numeric>
 
-#include "GController.h"
+#include "GoapController.h"
 
 Strategist::Strategist(const DataBase& data) : _data(data)
 {
-    GController::StrategistPtr	= this;
+    UGoapController::StrategistPtr	= this;
 }
 
 void Strategist::ConstructStrategy(const std::vector<float>& priorities, Strategy& strategy) const

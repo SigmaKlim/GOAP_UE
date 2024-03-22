@@ -21,8 +21,13 @@
 #include "Attributes/Special/AGrenadesLeft.h"
 #include "Attributes/Special/AMagsLeft.h"
 
+#include "Goals/Specific/GTest.h"
 
 #include "Conditions/Special/CEqual.h"
 #include "Conditions/Special/CGreater.h"
 #include "Conditions/Special/CInSet.h"
 #include "Navigation/Navigator.h"
+
+
+#include "Actions/Performers/IActionPerformer.h"
+#include "Actions/Performers/APTest.h"

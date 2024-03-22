@@ -16,7 +16,10 @@ class DataBase
 {
 public:
     DataBase();
-
+    bool RegisterAttribute(const std::string& name, IAttribute* attributePtr);
+    bool RegisterGoal(const std::string& name, Goal* goalPtr);
+    bool RegisterAction(const std::string& name, IAction* actionPtr);
+    
     size_t GetNumAttributes() const;
     size_t GetAttributeId(const std::string& name) const;
 

@@ -9,11 +9,7 @@
 class Helper
 {
 public:
-    Helper(DataBase& data) : _data(data) {}
-
-    bool RegisterAttribute(const std::string& name, IAttribute* attributePtr) const;
-    bool RegisterGoal(const std::string& name, Goal* goalPtr) const;
-    bool RegisterAction(const std::string& name, IAction* actionPtr) const;
+    Helper(const DataBase& data) : _data(data) {}
 
 
     
@@ -24,5 +20,5 @@ public:
     
 
 private:
-    DataBase& _data;
+    const DataBase& _data;
 };

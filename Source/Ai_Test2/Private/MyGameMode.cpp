@@ -43,7 +43,7 @@ void AMyGameMode::InitializeGAttributes(DataBase & data)
 
 	for (auto& aName : data.AttributeCatalogue.nRange)
 		AttributeNames.Add(FString(aName->c_str()));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Attributes have been registered."));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Attributes have been registered."));
 }
 
 void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
@@ -58,8 +58,9 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 
 
 	for (auto& aName : data.ActionCatalogue.nRange)
-		AttributeNames.Add(FString(aName->c_str()));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Actions have been registered."));
+		ActionNames.Add(FString(aName->c_str()));
+	data.ActionPerformers.resize(data.ActionCatalogue.Size());
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Actions have been registered."));
 
 }
 
@@ -71,8 +72,26 @@ void AMyGameMode::InitializeGGoals(DataBase& data, const Helper& helper)
 	ConditionSet gStand = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eFalse)} });
 	SOFT_CHECK(data.RegisterGoal("GStand", new GTest(gStand, 5.0f)), "Failed to register GStand.");
 
-
 	for (auto& gName : data.GoalCatalogue.nRange)
-		AttributeNames.Add(FString(gName->c_str()));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Goals have been registered."));
+		GoalNames.Add(FString(gName->c_str()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Goals have been registered."));
+}
+
+float AMyGameMode::GetSecondsSinceStart() const
+{
+	return GetWorld()->GetTimeSeconds();
+}
+
+bool AMyGameMode::SetActionPerformer(const FString& actionName, UActionPerformer* performer)
+{
+	std::string cName = TCHAR_TO_UTF8(*actionName);
+	if (GlobalDataPtr->ActionCatalogue.GetId(cName) == nullptr)
+	{
+		std::string debugMes = "SetActionPerformer: Failed to find action under name " + cName;
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString(debugMes.c_str()));
+		return false;
+	}
+	size_t id = *GlobalDataPtr->ActionCatalogue.GetId(cName);
+	GlobalDataPtr->ActionPerformers[id] = performer;
+	return false;
 }

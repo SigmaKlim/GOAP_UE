@@ -24,8 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	int UpdateAi(bool wasActionComplete);
-
+	int UpdateAi(bool wasActionComplete, bool mustBuildStrategy);
 	
 
 	static const Strategist* StrategistPtr;
@@ -37,9 +36,8 @@ private:
 	SupplementalData GenerateSupData();
 
     std::shared_ptr<ValueSet> _agentStatePtr;
-    int _currentActionIndex = -1;
+    int _currentActionIndex = 0;
     std::shared_ptr<Plan> _currentPlanPtr;
-    std::vector<std::shared_ptr<IActionPerformer>> _actionPerformers;
     int _currentGoalIndex = -1;
     Strategy _currentStrategy;
     std::vector<float> _goalPriorities;

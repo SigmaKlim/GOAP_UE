@@ -7,6 +7,7 @@
 
 #include "Navigation/Navigator.h"
 #include "Tools/Catalogue.h"
+#include <ActionPerformer.h>
 
 
 
@@ -26,6 +27,8 @@ public:
     Catalogue<std::shared_ptr<IAttribute>>   AttributeCatalogue;
     Catalogue<std::shared_ptr<IAction>>      ActionCatalogue;
     Catalogue<std::shared_ptr<Goal>>         GoalCatalogue;
+
+    std::vector<UActionPerformer*> ActionPerformers;
 
     Navigator Navigator;
 };

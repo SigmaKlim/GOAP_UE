@@ -15,7 +15,7 @@ void UGoapController::BeginPlay()
 {
 	Super::BeginPlay();
 	Helper helper(*DataPtr);
-	_agentStatePtr = std::make_shared<ValueSet>(helper.MakeValueSet({ {"AIsCrouching", false} }));
+	_agentStatePtr = std::make_shared<ValueSet>(helper.MakeValueSet({ {"AIsCrouching", false}, {"AIsPatrolling", false} }));
 	_currentPlanPtr = std::make_shared<Plan>(DataPtr->GetNumAttributes());
     _goalPriorities.resize(DataPtr->GoalCatalogue.Size());
     for (size_t i = 0; i < _goalPriorities.size(); i++)
@@ -24,9 +24,8 @@ void UGoapController::BeginPlay()
 
 }
 
-int UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy)
+void UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy, FString& actionName, TMap<FString,int32>& effects)
 {
-
     if (mustBuildStrategy == true)
     {
         StrategistPtr->ConstructStrategy(_goalPriorities, _currentStrategy);
@@ -48,12 +47,20 @@ int UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy)
             MY_ASSERT(PlannerPtr->ConstructPlan(*_currentPlanPtr, GenerateSupData()));            
             _agentStatePtr = std::make_shared<ValueSet>
                 ((*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->OverrideAgentState(_currentPlanPtr->ResultState));
-            _currentActionIndex = 0;
-            //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Goal completed!"));
+            _currentActionIndex = 0;   
         }
+        effects.Empty();
     }
-    return _currentPlanPtr->ActionIds.size() > 0 ? _currentPlanPtr->ActionIds[_currentActionIndex] 
-        : UpdateAi(true, false);
+    if (_currentPlanPtr->ActionIds.size() == 0)
+        UpdateAi(true, false, actionName, effects);
+    else
+    {
+        actionName = FString(DataPtr->ActionCatalogue.GetName(_currentPlanPtr->ActionIds[_currentActionIndex])->c_str());
+        for (size_t i = 0; i < _currentPlanPtr->ActionInstances[_currentActionIndex].Effects.Size(); i++)
+            if (_currentPlanPtr->ActionInstances[_currentActionIndex].Effects.IsAffected(i))
+                effects.Add(FString(DataPtr->AttributeCatalogue.GetName(i)->c_str()),
+                    _currentPlanPtr->ActionInstances[_currentActionIndex].Effects.GetValue(i));
+    }
 }
 
 

@@ -39,7 +39,7 @@ void AMyGameMode::InitializeGoap()
 void AMyGameMode::InitializeGAttributes(DataBase & data)
 {
 	SOFT_CHECK(data.RegisterAttribute("AIsCrouching", new ABool), "Failed to register AIsCrouching.");
-	//
+	SOFT_CHECK(data.RegisterAttribute("AIsPatrolling", new ABool), "Failed to register AIsPatrolling.");
 
 	for (auto& aName : data.AttributeCatalogue.nRange)
 		AttributeNames.Add(FString(aName->c_str()));
@@ -56,6 +56,9 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 	ValueSet		eStand = helper.MakeValueSet({ {"AIsCrouching", false} });
 	SOFT_CHECK(data.RegisterAction("AcStand", new AcSimple(cStand, eStand, 4)), "Failed to register AcStand.");
 
+	ConditionSet	cPatrol = helper.MakeConditionSet({});
+	ValueSet		ePatrol = helper.MakeValueSet({ {"AIsPatrolling", true} });
+	SOFT_CHECK(data.RegisterAction("AcPatrol", new AcSimple(cPatrol, ePatrol, 4)), "Failed to register AcPatrol.");
 
 	for (auto& aName : data.ActionCatalogue.nRange)
 		ActionNames.Add(FString(aName->c_str()));
@@ -66,11 +69,14 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 
 void AMyGameMode::InitializeGGoals(DataBase& data, const Helper& helper)
 {
-	ConditionSet gCrouch = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eTrue)} });
+	/*ConditionSet gCrouch = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eTrue)} });
 	SOFT_CHECK(data.RegisterGoal("GCrouch", new GTest(gCrouch, 5.0f)), "Failed to register GCrouch.");
 
 	ConditionSet gStand = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eFalse)} });
-	SOFT_CHECK(data.RegisterGoal("GStand", new GTest(gStand, 5.0f)), "Failed to register GStand.");
+	SOFT_CHECK(data.RegisterGoal("GStand", new GTest(gStand, 5.0f)), "Failed to register GStand.");*/
+
+	ConditionSet gPatrol = helper.MakeConditionSet({ {"AIsPatrolling", new CEqual(EAVBool::eTrue)} });
+	SOFT_CHECK(data.RegisterGoal("GPatrol", new GTest(gPatrol, 5.0f)), "Failed to register GPatrol.");
 
 	for (auto& gName : data.GoalCatalogue.nRange)
 		GoalNames.Add(FString(gName->c_str()));

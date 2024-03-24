@@ -5,6 +5,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include <Containers/UnrealString.h>
+#include <Containers/Map.h>
+
 #include "GoapController.generated.h"
 
 
@@ -24,7 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	int UpdateAi(bool wasActionComplete, bool mustBuildStrategy);
+	void UpdateAi(bool wasActionComplete, bool mustBuildStrategy, FString& actionName, TMap<FString,int32>& effects);
 	
 
 	static const Strategist* StrategistPtr;

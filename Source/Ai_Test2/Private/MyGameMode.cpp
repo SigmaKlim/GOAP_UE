@@ -14,7 +14,7 @@ AMyGameMode::AMyGameMode()
 void AMyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GetWorld()->bIsCameraMoveableWhenPaused = true;
 
 }
 

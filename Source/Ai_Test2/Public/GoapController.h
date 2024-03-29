@@ -29,6 +29,25 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void UpdateAi(bool wasActionComplete, bool mustBuildStrategy, FString& actionName, TMap<FString,int32>& effects);
 	
+	UFUNCTION(BlueprintCallable)
+	void GetCurrentStrategy(TArray<int32>& goalIDs) const;
+
+	UFUNCTION(BlueprintCallable)
+	void GetCurrentPlan(TArray<int32>& actionIDs) const;
+
+	UFUNCTION(BlueprintCallable)
+	void GetCurrentState(TArray<int32>& attributeValues) const;
+
+	//Returns the index of current goal in current strategy
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentGoalIndex() const;
+
+	//Returns the index of current action in current plan
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentActionIndex() const;
+
+	UFUNCTION(BlueprintCallable)
+	FString GetAttributeValueString(int32 attributeId, int32 attributeValue) const;
 
 	static const Strategist* StrategistPtr;
 	static const Planner* PlannerPtr;

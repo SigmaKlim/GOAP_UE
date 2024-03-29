@@ -63,6 +63,44 @@ void UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy, F
     }
 }
 
+void UGoapController::GetCurrentStrategy(TArray<int32>& goalIDs) const
+{
+    goalIDs.Empty();
+    for (auto& goalID : _currentStrategy.GoalIds)
+        goalIDs.Add(goalID);
+}
+
+void UGoapController::GetCurrentPlan(TArray<int32>& actionIDs) const
+{
+    actionIDs.Empty();
+    for (auto& actionID : _currentPlanPtr->ActionIds)
+        actionIDs.Add(actionID);
+}
+
+void UGoapController::GetCurrentState( TArray<int32>& attributeValues) const
+{
+    attributeValues.Empty(_agentStatePtr->Size());
+    for (size_t i = 0; i < _agentStatePtr->Size(); i++)
+        attributeValues.Add(_agentStatePtr->GetValue(i));
+
+}
+
+int32 UGoapController::GetCurrentGoalIndex() const
+{
+    return _currentGoalIndex;
+}
+
+int32 UGoapController::GetCurrentActionIndex() const
+{
+    return _currentActionIndex;
+}
+
+FString UGoapController::GetAttributeValueString(int32 attributeId, int32 attributeValue) const
+{
+    return FString((*DataPtr->AttributeCatalogue.GetItem(attributeId))->GetEnumeratorString(attributeValue).c_str());
+}
+
+
 
 
 SupplementalData UGoapController::GenerateSupData()

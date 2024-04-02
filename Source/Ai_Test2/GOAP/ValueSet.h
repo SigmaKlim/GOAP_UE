@@ -4,6 +4,7 @@
 
 struct ValueSet : PropertyList<int>
 {
+    ValueSet() : PropertyList() {};
     ValueSet(size_t size) : PropertyList(size) {}
     
     void Modify(const ValueSet& affectingValueSet)

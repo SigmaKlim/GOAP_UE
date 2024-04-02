@@ -18,7 +18,7 @@ public:
 
     std::string GetEnumeratorString(t_value value) const override
     {
-        MY_ASSERT(value <= ENUMERATORS.size());
+        MY_ASSERT(value < ENUMERATORS.size());
         return ENUMERATORS[value];
     }
 private:

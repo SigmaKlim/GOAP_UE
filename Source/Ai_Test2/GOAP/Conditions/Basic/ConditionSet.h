@@ -11,6 +11,7 @@ class DataBase;
 class ConditionSet : public PropertyList<std::shared_ptr<const ICondition>>
 {
 public:
+    ConditionSet() : PropertyList() {};
     ConditionSet(size_t size) : PropertyList<std::shared_ptr<const ICondition>>(size) {}
     template <typename T_Condition>
     void SetCondition(size_t index, const T_Condition* condition);

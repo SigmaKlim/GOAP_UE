@@ -3,20 +3,19 @@
 #include <vector>
 #include <string>
 
-enum EAVEnemyStatus
+UENUM(BlueprintType)
+enum class EAVEnemyStatus : uint8
 {
-    eNonVisible,
-    eVisible,
-    eInRangedCombatRadius,
-    eInCloseCombatRadius,
-    eAttacking
+    eNonVisible     UMETA(DisplayName = "Non-visible"),
+    eVisible        UMETA(DisplayName = "Visible"),
+    eInCombatRadius UMETA(DisplayName = "InCombatRadius"),
+    eAttacking      UMETA(DisplayName = "Attacking")
 };
 
 const std::vector<std::string> ES_ENUMERATORS =
     {"NON_VISIBLE",
     "VISIBLE",
-    "IN_RANGED_COMBAT_RADIUS",
-    "IN_CLOSE_COMBAT_RADIUS",
+    "IN_COMBAT_RADIUS",
     "ATTACKING"
     };
 

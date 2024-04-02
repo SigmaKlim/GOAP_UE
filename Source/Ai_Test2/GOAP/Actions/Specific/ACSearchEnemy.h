@@ -29,10 +29,10 @@ inline void AcSearchEnemy::ConstructActionInstancesPriori(std::vector<ActionInst
     const SupplementalData& userData)
 {
     ConditionSet cs(DataPtr->GetNumAttributes());
-    cs.SetCondition(_iEnemyStatus, new CEqual(EAVEnemyStatus::eNonVisible));
+    cs.SetCondition(_iEnemyStatus, new CEqual((int)EAVEnemyStatus::eNonVisible));
     cs.SetCondition(_iIsCrouching, new CEqual(false));
     ValueSet vs(DataPtr->GetNumAttributes());
-    vs.SetValue(_iEnemyStatus, EAVEnemyStatus::eVisible);
+    vs.SetValue(_iEnemyStatus, (int)EAVEnemyStatus::eVisible);
     vs.SetValue(_iAtNode, -1);  //we do not know in advance where the agent will appear when the search is over
     float projectedCost = _cost;
     if (userData.futureGoToDestinationNode != -1)

@@ -9,12 +9,10 @@ template <typename T>
 class PropertyList
 {
 public:
+    PropertyList() = default;
     PropertyList(size_t size) : _properties(size), _affectedMask(size, false){}
-    PropertyList(const PropertyList& other) : _properties(other.Size()), _affectedMask(other.Size(), false)
+    PropertyList(const PropertyList& other) : _properties(other._properties), _affectedMask(other._affectedMask), _affectedPropertiesNum(other._affectedPropertiesNum)
     {
-        for (unsigned i = 0; i < other.Size(); i++)
-            if (other.IsAffected(i))
-                SetProperty(i, other.GetProperty(i));
     }
     PropertyList& operator=(const PropertyList& other)
     {
@@ -68,7 +66,7 @@ public:
 protected:
     std::vector<T>      _properties;
     std::vector<bool>   _affectedMask;
-    size_t            _affectedPropertiesNum = 0;
+    size_t              _affectedPropertiesNum = 0;
     
 };
 

@@ -22,6 +22,7 @@
 #include "Attributes/Special/AMagsLeft.h"
 
 #include "Goals/Specific/GTest.h"
+#include "Goals/Specific/GKill.h"
 
 #include "Conditions/Special/CEqual.h"
 #include "Conditions/Special/CGreater.h"

@@ -9,6 +9,7 @@
 
 struct Plan
 {
+    Plan() = default;
     Plan(size_t numAttributes);
     void Clear();
     ValueSet StartState;
@@ -21,7 +22,7 @@ struct Plan
     std::vector<std::string> ActionNames;
     std::vector<ActionInstanceData> ActionInstances; //posteriori instances
     
-    float TotalCost;
+    float TotalCost = 0.0f;
     ValueSet ResultState;
     TelemetryData TData;
 };

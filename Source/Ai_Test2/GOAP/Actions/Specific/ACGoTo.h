@@ -40,7 +40,7 @@ inline void AcGoTo::ConstructActionInstancesPriori(std::vector<ActionInstanceDat
             cs.SetCondition(_iIsCrouching, new CEqual(false)); //set isCrouching condition equal to false
             ValueSet vs(DataPtr->GetNumAttributes());                                      
             vs.SetValue(_iAtNode, destinationNode);            //pick atNode attribute value from required conditions and set its effect accordingly
-            vs.SetValue(_iEnemyStatus, EAVEnemyStatus::eNonVisible);
+            vs.SetValue(_iEnemyStatus, (int)EAVEnemyStatus::eNonVisible);
             float newCost = DataPtr->Navigator.GetDistance(userData.initNode, destinationNode);
             if (userData.futureGoToDestinationNode != -1)
             {

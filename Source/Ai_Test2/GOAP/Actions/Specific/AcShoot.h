@@ -16,9 +16,9 @@ public:
     {
         ConditionSet conditions(DataPtr->GetNumAttributes());
         conditions.SetCondition(_iAmmoLeftInMag, new CGreater(SHOTS_PER_ACTION - 1));
-        conditions.SetCondition(_iEnemyStatus, new CEqual(EAVEnemyStatus::eInRangedCombatRadius));
+        conditions.SetCondition(_iEnemyStatus, new CEqual((int)EAVEnemyStatus::eInCombatRadius));
         ValueSet effects(DataPtr->GetNumAttributes());
-        effects.SetValue(_iEnemyStatus, EAVEnemyStatus::eAttacking);
+        effects.SetValue(_iEnemyStatus, (int)EAVEnemyStatus::eAttacking);
         actionInstances.push_back({conditions, effects, _cost, userData});
     }
     ActionInstanceData ConstructActionInstancePosteriori(const ValueSet& prevState, const ActionInstanceData& prioriActionInstance) override
@@ -26,7 +26,7 @@ public:
         auto actionInstance = IAction::ConstructActionInstancePosteriori(prevState, prioriActionInstance);
         auto prevAmmoLeft = prevState.GetProperty(_iAmmoLeftInMag);
         actionInstance.Effects.SetValue(_iAmmoLeftInMag, prevAmmoLeft - SHOTS_PER_ACTION);
-        actionInstance.Effects.SetValue(_iEnemyStatus, EAVEnemyStatus::eInRangedCombatRadius);
+        actionInstance.Effects.SetValue(_iEnemyStatus, (int)EAVEnemyStatus::eInCombatRadius);
         actionInstance.StringData = "(ammo left: " + std::to_string(prevAmmoLeft - SHOTS_PER_ACTION) + ")";
         return actionInstance;
     }

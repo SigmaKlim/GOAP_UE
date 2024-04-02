@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include "../../SupplementalData.h"
-
+#include "../../Tools/AssertMacro.h"
 
 class DataBase;
 typedef int t_value;

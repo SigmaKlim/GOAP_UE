@@ -49,6 +49,18 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FString GetAttributeValueString(int32 attributeId, int32 attributeValue) const;
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateGoalPriority(const FString& goalName, float priority);
+
+	//Changes agent current state.
+	UFUNCTION(BlueprintCallable)
+	void OverrideAgentState(const TMap<FString, int32>& attributeValueList);
+
+	//Returns true if the event completes current action, otherwise returns false (i.e. strategy must be rebuild!)
+	UFUNCTION(BlueprintCallable)
+	bool IsSurprised(const TMap<FString,int32>& effects) const;
+
+
 	static const Strategist* StrategistPtr;
 	static const Planner* PlannerPtr;
 	static const DataBase* DataPtr;
@@ -57,16 +69,13 @@ protected:
 private:
 	SupplementalData GenerateSupData();
 
-    std::shared_ptr<ValueSet> _agentStatePtr;
+	ValueSet _expectedState; //We expect agent to arrive to this state by the completion of current action
+    ValueSet _currentState;	 //State agent current state
     int _currentActionIndex = 0;
-    std::shared_ptr<Plan> _currentPlanPtr;
+    Plan _currentPlan;
     int _currentGoalIndex = -1;
     Strategy _currentStrategy;
     std::vector<float> _goalPriorities;
-
-    bool _mustBuildStrategy = true;
-    bool _isGoalFinished = false;
-    bool _mustBuildPlan = true;
 
 	friend DataBase;
 	friend Strategist;

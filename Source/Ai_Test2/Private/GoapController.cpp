@@ -7,59 +7,65 @@ const Strategist* UGoapController::StrategistPtr;
 const Planner* UGoapController::PlannerPtr;
 const DataBase* UGoapController::DataPtr;
 
-
-
-
 // Called when the game starts
 void UGoapController::BeginPlay()
 {
 	Super::BeginPlay();
 	Helper helper(*DataPtr);
-	_agentStatePtr = std::make_shared<ValueSet>(helper.MakeValueSet({ {"AIsCrouching", false}, {"AIsPatrolling", false} }));
-	_currentPlanPtr = std::make_shared<Plan>(DataPtr->GetNumAttributes());
+	_currentState = helper.MakeValueSet({ {"AIsCrouching", false}, {"AEnemyStatus", (int)EAVEnemyStatus::eNonVisible} });
+    _expectedState = ValueSet(DataPtr->GetNumAttributes());
+	_currentPlan = Plan(DataPtr->GetNumAttributes());
     _goalPriorities.resize(DataPtr->GoalCatalogue.Size());
-    for (size_t i = 0; i < _goalPriorities.size(); i++)
-        _goalPriorities[i] = (*DataPtr->GoalCatalogue.GetItem(i))->UpdatePriority();
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Goap Controller initialized!"));
 
 }
 
 void UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy, FString& actionName, TMap<FString,int32>& effects)
 {
+    bool mustUpdateOutput = false;
     if (mustBuildStrategy == true)
     {
         StrategistPtr->ConstructStrategy(_goalPriorities, _currentStrategy);
-        _currentGoalIndex = 0;
+        _currentGoalIndex = -1;
         GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Strategy rebuild called"));
     }
-    if (wasActionComplete == true || mustBuildStrategy == true) //if we complete the action
+    if (mustBuildStrategy == true || _currentActionIndex >= _currentPlan.ActionIds.size()) // <=> if we must build a new plan
     {
-        if (mustBuildStrategy == true || ++_currentActionIndex >= _currentPlanPtr->ActionIds.size()) //if we complete the plan
+        if (mustBuildStrategy == false) //if the previous goal was completed
+            _currentState = (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->OverrideAgentState(_currentState);
+        _currentGoalIndex = (_currentGoalIndex + 1) % DataPtr->GoalCatalogue.Size();//move to the next goal
+        _currentPlan.Clear();
+        _currentPlan.Goal = (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->GetConditions();
+        _currentPlan.GoalName = (*DataPtr->GoalCatalogue.GetName(_currentStrategy.GoalIds[_currentGoalIndex]));
+        _currentPlan.StartState = _currentState;
+        MY_ASSERT(PlannerPtr->ConstructPlan(_currentPlan, GenerateSupData()));
+        if (_currentPlan.ActionIds.size() == 0) //if current state satisfies goal 
         {
-            (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->UpdatePriority();
-            _currentGoalIndex = (_currentGoalIndex + 1) % DataPtr->GoalCatalogue.Size();
-
-            _currentPlanPtr->Clear();
-            _currentPlanPtr->Goal = (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->GetConditions();
-            _currentPlanPtr->GoalName = (*DataPtr->GoalCatalogue.GetName(_currentStrategy.GoalIds[_currentGoalIndex]));
-            _currentPlanPtr->StartState = *_agentStatePtr;
-            _isGoalFinished = false;
-            MY_ASSERT(PlannerPtr->ConstructPlan(*_currentPlanPtr, GenerateSupData()));            
-            _agentStatePtr = std::make_shared<ValueSet>
-                ((*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->OverrideAgentState(_currentPlanPtr->ResultState));
-            _currentActionIndex = 0;   
+            _currentActionIndex++; //move on to next goal
+            UpdateAi(false, false, actionName, effects);
         }
-        effects.Empty();
+        _currentActionIndex = 0;
+        _expectedState = _currentState;
+        _expectedState.Modify(_currentPlan.ActionInstances[_currentActionIndex].Effects);
+        mustUpdateOutput = true;
     }
-    if (_currentPlanPtr->ActionIds.size() == 0)
-        UpdateAi(true, false, actionName, effects);
-    else
+    else if (wasActionComplete == true)
     {
-        actionName = FString(DataPtr->ActionCatalogue.GetName(_currentPlanPtr->ActionIds[_currentActionIndex])->c_str());
-        for (size_t i = 0; i < _currentPlanPtr->ActionInstances[_currentActionIndex].Effects.Size(); i++)
-            if (_currentPlanPtr->ActionInstances[_currentActionIndex].Effects.IsAffected(i))
+        _currentState = _expectedState;
+        if (++_currentActionIndex < _currentPlan.ActionIds.size())
+            _expectedState.Modify(_currentPlan.ActionInstances[_currentActionIndex].Effects);
+        else
+            UpdateAi(false, false, actionName, effects);
+        mustUpdateOutput = true;
+    }
+    if (mustUpdateOutput == true)
+    {
+        effects.Empty();
+        actionName = FString(DataPtr->ActionCatalogue.GetName(_currentPlan.ActionIds[_currentActionIndex])->c_str());
+        for (size_t i = 0; i < _currentPlan.ActionInstances[_currentActionIndex].Effects.Size(); i++)
+            if (_currentPlan.ActionInstances[_currentActionIndex].Effects.IsAffected(i))
                 effects.Add(FString(DataPtr->AttributeCatalogue.GetName(i)->c_str()),
-                    _currentPlanPtr->ActionInstances[_currentActionIndex].Effects.GetValue(i));
+                    _currentPlan.ActionInstances[_currentActionIndex].Effects.GetValue(i));
     }
 }
 
@@ -73,15 +79,15 @@ void UGoapController::GetCurrentStrategy(TArray<int32>& goalIDs) const
 void UGoapController::GetCurrentPlan(TArray<int32>& actionIDs) const
 {
     actionIDs.Empty();
-    for (auto& actionID : _currentPlanPtr->ActionIds)
+    for (auto& actionID : _currentPlan.ActionIds)
         actionIDs.Add(actionID);
 }
 
 void UGoapController::GetCurrentState( TArray<int32>& attributeValues) const
 {
-    attributeValues.Empty(_agentStatePtr->Size());
-    for (size_t i = 0; i < _agentStatePtr->Size(); i++)
-        attributeValues.Add(_agentStatePtr->GetValue(i));
+    attributeValues.Empty(_currentState.Size());
+    for (size_t i = 0; i < _currentState.Size(); i++)
+        attributeValues.Add(_currentState.GetValue(i));
 
 }
 
@@ -98,6 +104,32 @@ int32 UGoapController::GetCurrentActionIndex() const
 FString UGoapController::GetAttributeValueString(int32 attributeId, int32 attributeValue) const
 {
     return FString((*DataPtr->AttributeCatalogue.GetItem(attributeId))->GetEnumeratorString(attributeValue).c_str());
+}
+
+void UGoapController::UpdateGoalPriority(const FString& goalName, float priority)
+{
+    std::string s(TCHAR_TO_UTF8(*goalName));
+    _goalPriorities[*DataPtr->GoalCatalogue.GetId(s)] = priority;
+}
+
+void UGoapController::OverrideAgentState(const TMap<FString, int32>& attributeValueList)
+{
+    for (auto& pair : attributeValueList)
+    {
+        std::string attributeName(TCHAR_TO_UTF8(*pair.Key));
+        _currentState.SetValue(DataPtr->GetAttributeId(attributeName), pair.Value);
+    }
+}
+
+bool UGoapController::IsSurprised(const TMap<FString,int32>& effects) const
+{
+    auto affectedState = _currentState;
+    for (auto& pair : effects)
+    {
+        std::string attributeName(TCHAR_TO_UTF8(*pair.Key));
+        affectedState.SetValue(DataPtr->GetAttributeId(attributeName), pair.Value);
+    }
+    return _expectedState != affectedState;
 }
 
 

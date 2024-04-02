@@ -39,8 +39,7 @@ void AMyGameMode::InitializeGoap()
 void AMyGameMode::InitializeGAttributes(DataBase & data)
 {
 	SOFT_CHECK(data.RegisterAttribute("AIsCrouching", new ABool), "Failed to register AIsCrouching.");
-	SOFT_CHECK(data.RegisterAttribute("AIsPatrolling", new ABool), "Failed to register AIsPatrolling.");
-
+	SOFT_CHECK(data.RegisterAttribute("AEnemyStatus", new AEnemyStatus), "Failed to register AEnemyStatus");
 	for (auto& aName : data.AttributeCatalogue.nRange)
 		AttributeNames.Add(FString(aName->c_str()));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Attributes have been registered."));
@@ -57,8 +56,16 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 	SOFT_CHECK(data.RegisterAction("AcStand", new AcSimple(cStand, eStand, 4)), "Failed to register AcStand.");
 
 	ConditionSet	cPatrol = helper.MakeConditionSet({});
-	ValueSet		ePatrol = helper.MakeValueSet({ {"AIsPatrolling", true} });
-	SOFT_CHECK(data.RegisterAction("AcPatrol", new AcSimple(cPatrol, ePatrol, 4)), "Failed to register AcPatrol.");
+	ValueSet		ePatrol = helper.MakeValueSet({ {"AEnemyStatus", (int)EAVEnemyStatus::eVisible} });
+	SOFT_CHECK(data.RegisterAction("AcPatrol", new AcSimple(cPatrol, ePatrol, 30)), "Failed to register AcPatrol.");
+
+	ConditionSet	cApproach = helper.MakeConditionSet({ {"AEnemyStatus", new CEqual((int)EAVEnemyStatus::eVisible) } });
+	ValueSet		eApproach = helper.MakeValueSet({ {"AEnemyStatus", (int)EAVEnemyStatus::eInCombatRadius} });
+	SOFT_CHECK(data.RegisterAction("AcApproach", new AcSimple(cApproach, eApproach, 8)), "Failed to register AcApproach.");
+
+	ConditionSet	cShoot = helper.MakeConditionSet({ {"AEnemyStatus", new CEqual((int)EAVEnemyStatus::eInCombatRadius) } });
+	ValueSet		eShoot = helper.MakeValueSet({ {"AEnemyStatus", (int)EAVEnemyStatus::eAttacking} });
+	SOFT_CHECK(data.RegisterAction("AcShoot", new AcSimple(cShoot, eShoot, 5)), "Failed to register AcShoot.");
 
 	for (auto& aName : data.ActionCatalogue.nRange)
 		ActionNames.Add(FString(aName->c_str()));
@@ -75,8 +82,10 @@ void AMyGameMode::InitializeGGoals(DataBase& data, const Helper& helper)
 	ConditionSet gStand = helper.MakeConditionSet({ {"AIsCrouching", new CEqual(EAVBool::eFalse)} });
 	SOFT_CHECK(data.RegisterGoal("GStand", new GTest(gStand, 5.0f)), "Failed to register GStand.");*/
 
-	ConditionSet gPatrol = helper.MakeConditionSet({ {"AIsPatrolling", new CEqual(EAVBool::eTrue)} });
-	SOFT_CHECK(data.RegisterGoal("GPatrol", new GTest(gPatrol, 5.0f)), "Failed to register GPatrol.");
+	/*ConditionSet gPatrol = helper.MakeConditionSet({ {"AIsPatrolling", new CEqual(EAVBool::eTrue)} });
+	SOFT_CHECK(data.RegisterGoal("GPatrol", new GTest(gPatrol, 5.0f)), "Failed to register GPatrol.");*/
+
+	SOFT_CHECK(data.RegisterGoal("GKillEnemy", new GKill), "Failed to register GPatrol.");
 
 	for (auto& gName : data.GoalCatalogue.nRange)
 		GoalNames.Add(FString(gName->c_str()));

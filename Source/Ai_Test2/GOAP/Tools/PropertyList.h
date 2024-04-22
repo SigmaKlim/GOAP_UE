@@ -63,6 +63,10 @@ public:
         for (size_t i = 0; i < Size(); i++)
             ClearValue(i);
     }
+    const std::vector<T>& GetPropertyArray() const
+    {
+        return _properties;
+    }
 protected:
     std::vector<T>      _properties;
     std::vector<bool>   _affectedMask;

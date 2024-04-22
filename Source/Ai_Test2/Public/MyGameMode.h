@@ -18,9 +18,7 @@ public:
 	AMyGameMode();
 	virtual void BeginPlay() override;
 
-	void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	void InitializeGoap();
-
 	void InitializeGAttributes(DataBase & data);
 	void InitializeGActions(DataBase& data, const Helper& helper);
 	void InitializeGGoals(DataBase& data, const Helper& helper);

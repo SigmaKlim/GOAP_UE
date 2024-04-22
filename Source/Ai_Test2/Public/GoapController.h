@@ -33,7 +33,7 @@ protected:
 	void GetCurrentStrategy(TArray<int32>& goalIDs) const;
 
 	UFUNCTION(BlueprintCallable)
-	void GetCurrentPlan(TArray<int32>& actionIDs) const;
+	void GetCurrentPlan(TArray<int32>& actionIDs, TArray<float>& actionCosts) const;
 
 	UFUNCTION(BlueprintCallable)
 	void GetCurrentState(TArray<int32>& attributeValues) const;
@@ -60,6 +60,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsSurprised(const TMap<FString,int32>& effects) const;
 
+	void SavePlanData(const Plan& plan) const;
 
 	static const Strategist* StrategistPtr;
 	static const Planner* PlannerPtr;
@@ -76,6 +77,10 @@ private:
     int _currentGoalIndex = -1;
     Strategy _currentStrategy;
     std::vector<float> _goalPriorities;
+
+	//for statistics
+	mutable bool _isStateKnown = false;
+	mutable int _knownStateIndex;
 
 	friend DataBase;
 	friend Strategist;

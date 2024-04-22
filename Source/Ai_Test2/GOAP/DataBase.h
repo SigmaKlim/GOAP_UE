@@ -4,8 +4,7 @@
 #include "Actions/Basic/IAction.h"
 #include "Attributes/Basic/IAttribute.h"
 #include "Goals/Basic/Goal.h"
-
-#include "Navigation/Navigator.h"
+#include "../Public/NavigatorN.h"
 #include "Tools/Catalogue.h"
 #include <ActionPerformer.h>
 
@@ -30,6 +29,6 @@ public:
 
     std::vector<UActionPerformer*> ActionPerformers;
 
-    Navigator Navigator;
+    ANavigatorN* Navigator;
 };
 

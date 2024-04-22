@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+class ACharacter;
 //Extra parameters passed to user overloads. All int members can potentially be moved to attribute array.
 struct SupplementalData
 {
@@ -16,5 +16,5 @@ struct SupplementalData
                                             //If the plan does not include more than 1 GoTo action (GoTo A1), our assumption was right. Otherwise we have GoTo A1 and
                                             //GoTo A2 and our route is O->A2->A1. So, we must compensate total plan cost by adding cost(O->A2) + cost(A1->A2) - cost(O->A1).
                                             //For that purpose we need info on whether in future the agent will have to go at some node, which is stored in this variable.
-    
+    ACharacter* agentPtr;
 };

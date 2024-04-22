@@ -1,9 +1,14 @@
 ﻿#include "Planner.h"
+#include <unordered_set>
+#include <vector>
 
 #include "GoapController.h"
 #include "Conditions/Basic/ConditionSet.h"
 #include "Conditions/Special/CEqual.h"
-
+#include "CoreMinimal.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "../SoftCheckMacro.h"
 
 Plan::Plan(size_t numAttributes) :
     StartState(numAttributes), Goal(numAttributes),
@@ -81,6 +86,8 @@ bool Planner::ConstructPlan(Plan& plan, SupplementalData initData) const
     }
     return false;
 }
+
+
 
 void Planner::GetNeighbors(std::vector<Vertex>& neighbors, std::vector<float>& distances, const Vertex& vertex, const Vertex& finish) const
 {

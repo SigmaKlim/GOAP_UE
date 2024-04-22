@@ -5,16 +5,12 @@
 #include "../../Conditions/Special/CInSet.h"
 #include "../../Attributes/Special/AEnemyStatus.h"
 
-//In order to use, AAtNode must anly be under InSet condition
+//In order to use, AAtNode must only be under InSet condition
 class AcGoTo : public IAction
 {
 public:
-    AcGoTo()
-    {
-        _iAtNode        = DataPtr->GetAttributeId("atNode");
-        _iEnemyStatus   = DataPtr->GetAttributeId("enemyStatus");
-        _iIsCrouching   = DataPtr->GetAttributeId("isCrouching");
-    }
+    AcGoTo(size_t iAtNode, size_t iEnemyStatus, size_t iIsCrouching) : _iAtNode(iAtNode),
+        _iEnemyStatus(iEnemyStatus), _iIsCrouching(iIsCrouching) {}
     void ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
     ActionInstanceData ConstructActionInstancePosteriori(const ValueSet& prevState, const ActionInstanceData& prioriActionInstance) override;
     float GetMaxCost() const override;
@@ -30,23 +26,22 @@ inline void AcGoTo::ConstructActionInstancesPriori(std::vector<ActionInstanceDat
 {
     if (requiredConditions.IsAffected(_iAtNode) == true)
     {
-        std::vector<int> destinations;
-        auto* inSet = static_cast<const CInSet*>(requiredConditions.GetProperty(_iAtNode).get());
-        for (auto& destination : inSet->Values)
-            destinations.push_back(destination);
-        for (auto& destinationNode : destinations)
+        for (int destinationNode : static_cast<const CInSet*>(requiredConditions.GetProperty(_iAtNode).get())->Values)
         {
+            if (DataPtr->Navigator->GetNodeObject(destinationNode)->IsReallyInteresting(userData.agentPtr) == false)
+                continue;
             ConditionSet cs(DataPtr->GetNumAttributes());
             cs.SetCondition(_iIsCrouching, new CEqual(false)); //set isCrouching condition equal to false
             ValueSet vs(DataPtr->GetNumAttributes());                                      
             vs.SetValue(_iAtNode, destinationNode);            //pick atNode attribute value from required conditions and set its effect accordingly
             vs.SetValue(_iEnemyStatus, (int)EAVEnemyStatus::eNonVisible);
-            float newCost = DataPtr->Navigator.GetDistance(userData.initNode, destinationNode);
+            float newCost = DataPtr->Navigator->GetDistance(userData.initNode, destinationNode, userData.agentPtr) / AAtNode::NAV_PATH_LENGTH_DIVISOR;
             if (userData.futureGoToDestinationNode != -1)
             {
-                newCost +=  DataPtr->Navigator.GetDistance(destinationNode, userData.futureGoToDestinationNode) -
-                            DataPtr->Navigator.GetDistance(userData.futureGoToDestinationNode, userData.initNode); //compensate our previous lack of knowledge of future GoTo departure point
+                newCost +=  DataPtr->Navigator->GetDistance(destinationNode, userData.futureGoToDestinationNode, userData.agentPtr) / AAtNode::NAV_PATH_LENGTH_DIVISOR -
+                            DataPtr->Navigator->GetDistance(userData.futureGoToDestinationNode, userData.initNode, userData.agentPtr) / AAtNode::NAV_PATH_LENGTH_DIVISOR; //compensate our previous lack of knowledge of future GoTo departure point
             }
+            //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("GoTo cost calculated ") + FString::Printf(TEXT("%f"), newCost) + FString(" To node ") + FString::FromInt(destinationNode));
             SupplementalData newData(userData);
             newData.futureGoToDestinationNode = destinationNode;
             std::string stringData = "-> " + std::to_string(destinationNode) + ";";
@@ -62,12 +57,12 @@ inline ActionInstanceData AcGoTo::ConstructActionInstancePosteriori(
     auto posterioriActionInstance = IAction::ConstructActionInstancePosteriori(prevState, prioriActionInstance);
     int destinationNode = prioriActionInstance.Effects.GetProperty(_iAtNode);
     int trueDepartureNode = prevState.GetProperty(_iAtNode); //now we know it
-    posterioriActionInstance.Cost = DataPtr->Navigator.GetDistance(trueDepartureNode, destinationNode); //true cost of goto action
+    posterioriActionInstance.Cost = DataPtr->Navigator->GetDistance(trueDepartureNode, destinationNode, prioriActionInstance.UserData.agentPtr) / AAtNode::NAV_PATH_LENGTH_DIVISOR; //true cost of goto action
     return posterioriActionInstance;
 }
 
 
 inline float AcGoTo::GetMaxCost() const
 {
-    return DataPtr->Navigator.GetMaxDistance();
+    return DataPtr->Navigator->GetMaxDistance();
 }

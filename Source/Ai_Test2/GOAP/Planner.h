@@ -52,17 +52,9 @@ public:
     float GetHeuristic(const Vertex& vertex, const Vertex& finish) const override;
     float GetHeuristicsDenominator() const override;
 
-    // template <typename t_attribute>
-    // void RegisterAttribute(const std::string& name);
-    // template <typename t_action>
-    // void RegisterActionConstructor(const std::string& name, const t_action& actionConstructor);
-    // void RegisterGoal(const std::string& name, const ConditionSet& goalState);
-
-    //For convenient use
     bool ConstructPlan(Plan& plan, SupplementalData initData) const;
-    //size_t GetNumAttributes() const;
-    //size_t GetAttributeId(const std::string& name) const;
-    //void PrintValueSet(const ValueSet& vs) const;
+
+
 private:
     
     const DataBase& _data;

@@ -11,13 +11,9 @@ public:
     //    return ++_priority;
     //}
 
-    ValueSet OverrideAgentState(const ValueSet& resultState) override
+    ValueSet OnGoalTaken(const ValueSet& resultState) override
     {
-        auto overridenState = resultState;
-        //auto iAtNode = *DataPtr->AttributeCatalogue.GetId("atNode");
-        //if (resultState.GetValue(iAtNode) == -1)
-        //    overridenState.SetValue(iAtNode, 0);
-        return overridenState;
+        return Goal::OnGoalTaken(resultState);
     }
 private:
     float _priority;

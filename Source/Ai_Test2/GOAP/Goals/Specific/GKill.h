@@ -11,10 +11,11 @@ public:
 		_conditions.SetCondition(DataPtr->GetAttributeId("AEnemyStatus"), new CEqual((int)EAVEnemyStatus::eAttacking));
 		
 	}
-	ValueSet OverrideAgentState(const ValueSet& resultState) override
+	ValueSet OnGoalTaken(const ValueSet& resultState) override
 	{
-		auto overridenState(resultState);
-		overridenState.SetValue(DataPtr->GetAttributeId("AEnemyStatus"), (int)EAVEnemyStatus::eInCombatRadius);
+		auto overridenState = Goal::OnGoalTaken(resultState);
+		if (overridenState.GetValue(DataPtr->GetAttributeId("AEnemyStatus")) == (int)EAVEnemyStatus::eAttacking)
+			overridenState.SetValue(DataPtr->GetAttributeId("AEnemyStatus"), (int)EAVEnemyStatus::eInCombatRadius);
 		return overridenState;
 	}
 };

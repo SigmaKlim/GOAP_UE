@@ -6,8 +6,9 @@
 
 
 //A structure that holds ids of nodes, divided into groups by name, as well as distances between nodes (from, to -> dist)
-struct Navigator
+struct Navigator_old
 {
+    Navigator_old();
     //Adds nodes, but does not check for copies under other names
     void AddNode(const std::string& name, int id, std::vector<float> position);
     const std::unordered_set<int>& GetNodesByName(const std::string& name) const;
@@ -18,7 +19,7 @@ struct Navigator
     bool IsSymmetric = true;
 private:
     std::unordered_map<std::string, std::unordered_set<int>> _nodeMap; //nodeName -> nodeIds
-    std::unordered_map<int, std::vector<float>> _positions;
+    std::unordered_map<int, TArray<AActor*>> _positions;
     float _maxDistance = 0;
 };
 

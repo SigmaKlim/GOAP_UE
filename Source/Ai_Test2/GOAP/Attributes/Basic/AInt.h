@@ -3,6 +3,7 @@
 
 #include "IAttribute.h"
 
+
 class AInt : public IAttribute
 {
 public:
@@ -22,6 +23,17 @@ public:
         return std::to_string(value);
     }
     
+    float MakeMeanString(t_value newVal, int num, std::string& stringData) const
+    {
+        float newMean = newVal;
+        if (stringData != "")
+        {
+            float prevMean = std::stof(stringData);
+            newMean = (prevMean * num + (float)newVal) / (num + 1);
+        }
+        stringData = std::to_string(newMean);
+        return newMean; 
+    }
 private:
     const t_value MAX_VALUE;
 };

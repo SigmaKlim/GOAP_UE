@@ -10,11 +10,11 @@ public:
     _iNumDepletables(iNumDepletables), _iAffectedAttribute(iAffectedAttribute), _delta(delta), _cost(cost),
     _depletableName(depletableName), _affectedAttributeName(affectedAttributeName) {}
     
-    void ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
+    virtual void ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
     ActionInstanceData ConstructActionInstancePosteriori(const ValueSet& prevState, const ActionInstanceData& prioriActionInstance) override;
     float GetMaxCost() const override;
     
-private:
+protected:
     size_t _iNumDepletables;   //index of the attribute showing the minimal required number of depletables
     size_t _iAffectedAttribute; //index of the attribute which value is affected by using the depletable (medkit, ammo)
     t_value _delta;             //hpLeft += delta

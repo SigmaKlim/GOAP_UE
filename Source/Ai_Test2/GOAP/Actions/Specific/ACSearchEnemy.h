@@ -5,15 +5,11 @@
 #include "../../Attributes/Special/AEnemyStatus.h"
 #include "../../Conditions/Special/CEqual.h"
 
-class AcSearchEnemy : public IAction
+class AcPatrol : public IAction
 {
 public:
-    AcSearchEnemy(float cost) : _cost(cost)
-    {
-        _iEnemyStatus = DataPtr->GetAttributeId("enemyStatus");
-        _iIsCrouching = DataPtr->GetAttributeId("isCrouching");
-        _iAtNode = DataPtr->GetAttributeId("atNode");
-    }
+    AcPatrol(size_t iEnemyStatus, size_t iIsCrouching, size_t iAtNode, float cost) :
+        _iEnemyStatus(iEnemyStatus), _iIsCrouching(iIsCrouching), _iAtNode(iAtNode), _cost(cost) {}
 
     void ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
     ActionInstanceData ConstructActionInstancePosteriori(const ValueSet& prevState, const ActionInstanceData& prioriActionInstance) override;
@@ -25,7 +21,7 @@ private:
     float _cost;
 };
 
-inline void AcSearchEnemy::ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions,
+inline void AcPatrol::ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions,
     const SupplementalData& userData)
 {
     ConditionSet cs(DataPtr->GetNumAttributes());
@@ -36,7 +32,7 @@ inline void AcSearchEnemy::ConstructActionInstancesPriori(std::vector<ActionInst
     vs.SetValue(_iAtNode, -1);  //we do not know in advance where the agent will appear when the search is over
     float projectedCost = _cost;
     if (userData.futureGoToDestinationNode != -1)
-        projectedCost += _cost - DataPtr->Navigator.GetDistance(userData.initNode, userData.futureGoToDestinationNode);
+        projectedCost += _cost - DataPtr->Navigator->GetDistance(userData.initNode, userData.futureGoToDestinationNode, userData.agentPtr);
     //we update cost according to the information that we will arrive to futureGoToDestinationNode not from
     //initNode but from some unknown node.
     SupplementalData newUserData(userData);
@@ -44,7 +40,7 @@ inline void AcSearchEnemy::ConstructActionInstancesPriori(std::vector<ActionInst
     actions.push_back({cs, vs, projectedCost, newUserData});
 }
 
-inline ActionInstanceData AcSearchEnemy::ConstructActionInstancePosteriori(
+inline ActionInstanceData AcPatrol::ConstructActionInstancePosteriori(
     const ValueSet& prevState, const ActionInstanceData& prioriActionInstance)
 {
     auto posterioriActionInstance = IAction::ConstructActionInstancePosteriori(prevState, prioriActionInstance);
@@ -55,7 +51,7 @@ inline ActionInstanceData AcSearchEnemy::ConstructActionInstancePosteriori(
     return posterioriActionInstance;
 }
 
-inline float AcSearchEnemy::GetMaxCost() const
+inline float AcPatrol::GetMaxCost() const
 {
-    return _cost * 2;
+    return _cost;
 }

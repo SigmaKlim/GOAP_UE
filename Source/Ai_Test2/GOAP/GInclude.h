@@ -10,6 +10,7 @@
 #include "Actions/Specific/AcSearchEnemy.h"
 #include "Actions/Specific/AcShoot.h"
 #include "Actions/Specific/ACUseDepletable.h"
+#include "Actions/Specific/AcReloadFromCover.h"
 
 #include "Attributes/Basic/ABool.h"
 #include "Attributes/Basic/AEnum.h"

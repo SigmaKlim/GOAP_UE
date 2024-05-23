@@ -15,7 +15,7 @@ void UGoapController::BeginPlay()
 	Helper helper(*DataPtr);
     _currentState = helper.MakeValueSet({ {"AIsCrouching", false},
                                                 {"AEnemyStatus", (int)EAVEnemyStatus::eNonVisible},
-                                                {"AAmmoInMag", 20},
+                                                {"AAmmoInMag", 30},
                                                 {"AMagsLeft", 100},
                                                 {"AAtNode", 0},
                                                 {"AHpLeft", 100}});
@@ -38,7 +38,12 @@ void UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy, F
     if (mustBuildStrategy == true || _currentActionIndex >= _currentPlan.ActionIds.size()) // <=> if we must build a new plan
     {
         _isStateKnown = false;
-
+        if (mustBuildStrategy == false)
+        {
+            _currentState = (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->OnGoalCompleted(_currentState);
+            if (_mustSaveStatistics == true)
+                SavePlanData(true); //report goal completion to statistics
+        }
         _currentGoalIndex = (_currentGoalIndex + 1) % DataPtr->GoalCatalogue.Size();//move to the next goal
         _currentState = (*DataPtr->GoalCatalogue.GetItem(_currentStrategy.GoalIds[_currentGoalIndex]))->OnGoalTaken(_currentState);
         _currentPlan.Clear();
@@ -46,7 +51,6 @@ void UGoapController::UpdateAi(bool wasActionComplete, bool mustBuildStrategy, F
         _currentPlan.GoalName = (*DataPtr->GoalCatalogue.GetName(_currentStrategy.GoalIds[_currentGoalIndex]));
         _currentPlan.StartState = _currentState;
         MY_ASSERT(PlannerPtr->ConstructPlan(_currentPlan, GenerateSupData()));
-        SavePlanData(_currentPlan);
         if (_currentPlan.ActionIds.size() == 0) //if current state satisfies goal 
         {
             _currentActionIndex++; //move on to next goal
@@ -169,17 +173,39 @@ void UGoapController::TickComponent(float DeltaTime, ELevelTick TickType, FActor
    
 }
 
-void UGoapController::SavePlanData(const Plan& plan) const
+void UGoapController::SavePlanData(bool isGoalCompleted) const
 {
-    const FString DATA_PATH = FPaths::ProjectUserDir() + "Data/";
-    const FString KILL_ENEMY_PATH = DATA_PATH + "KillEnemy/";
+    //s0.txt - for start states
+    //ns0.txt - for numbers each start state was discovered
+    //s.txt - for result (planned) states
+    //b.txt - stores bool for whether the goal was completed
+    //ss.txt - for result (actual) states by the goal completion
+    //nss.txt - for numbers each result state was achieved (not equal to nS0 as we ignore results when the goal was not completed)
+    // 
+    //todo: make hash table instead the array scanning
+    const auto& plan = _currentPlan;
+    const FString GOAL_STATISTICS_PATH = DATA_PATH + FString(plan.GoalName.c_str()) + "/";
     TArray<FString> newS0Strings; //start state to save
     for (int i = 0; i < plan.StartState.Size(); i++)
         newS0Strings.Add(FString::FromInt(plan.StartState.GetValue(i)));
     TArray<FString> savedS0Strings; //previously saved start states
-    FFileHelper::LoadFileToStringArray(savedS0Strings, *(KILL_ENEMY_PATH + "s0.txt"));
+    FFileHelper::LoadFileToStringArray(savedS0Strings, *(GOAL_STATISTICS_PATH + "s0.txt"));
+    TArray<FString> savedNS0Strings;
+    FFileHelper::LoadFileToStringArray(savedNS0Strings, *(GOAL_STATISTICS_PATH + "ns0.txt"));
+    TArray<FString> meanedSStrings;
+    FFileHelper::LoadFileToStringArray(meanedSStrings, *(GOAL_STATISTICS_PATH + "s.txt"));
+    TArray<FString> savedBStrings; //goal completion status
+    FFileHelper::LoadFileToStringArray(savedBStrings, *(GOAL_STATISTICS_PATH + "b.txt"));
+    TArray<FString> meanedSSStrings; //actual states by the goal completion
+    FFileHelper::LoadFileToStringArray(meanedSSStrings, *(GOAL_STATISTICS_PATH + "ss.txt"));
+    TArray<FString> savedNSSStrings;
+    FFileHelper::LoadFileToStringArray(savedNSSStrings, *(GOAL_STATISTICS_PATH + "nss.txt"));
+    check(savedS0Strings.Num() / DataPtr->GetNumAttributes() == savedNS0Strings.Num());
+    check(savedS0Strings.Num() == meanedSStrings.Num());
     check(savedS0Strings.Num() % DataPtr->GetNumAttributes() == 0);
-
+    check(meanedSSStrings.Num() % DataPtr->GetNumAttributes() == 0);
+    check(savedBStrings.Num() == meanedSSStrings.Num() / DataPtr->GetNumAttributes());
+    check(savedBStrings.Num() == savedNSSStrings.Num());
     std::vector<FString> savedS0Strings_v(savedS0Strings.GetData(), savedS0Strings.GetData() + savedS0Strings.Num());
     for (int i = 0; i < savedS0Strings_v.size(); i += DataPtr->GetNumAttributes())
     {
@@ -191,40 +217,83 @@ void UGoapController::SavePlanData(const Plan& plan) const
             break;
         }
     }
-    if (_isStateKnown)
+    if (_isStateKnown == true)
     {
-        TArray<FString> ns;
-        FFileHelper::LoadFileToStringArray(ns, *(KILL_ENEMY_PATH + "n.txt"));
-        int n = FCString::Atoi(ns[_knownStateIndex].GetCharArray().GetData());
-        int newN = n + 1;
-        ns[_knownStateIndex] = FString::FromInt(newN);
-        FFileHelper::SaveStringArrayToFile(ns, *(KILL_ENEMY_PATH + "n.txt"));
-        TArray<FString> meanedSStrings;
-        FFileHelper::LoadFileToStringArray(meanedSStrings, *(KILL_ENEMY_PATH + "s.txt"));
+        int nS0 = FCString::Atoi(savedNS0Strings[_knownStateIndex].GetCharArray().GetData());
+        savedNS0Strings[_knownStateIndex] = FString::FromInt(nS0 + 1);
+        FFileHelper::SaveStringArrayToFile(savedNS0Strings, *(GOAL_STATISTICS_PATH + "ns0.txt"));
         std::vector<float> meanedState(DataPtr->GetNumAttributes());
         for (int i = 0; i < DataPtr->GetNumAttributes(); i++)
         {
             std::string cstring(TCHAR_TO_ANSI(*meanedSStrings[_knownStateIndex * DataPtr->GetNumAttributes() + i]));
-            float meanedVal = (*DataPtr->AttributeCatalogue.GetItem(i))->MakeMeanString(
-                plan.ResultState.GetValue(i), n, cstring);
+            (*DataPtr->AttributeCatalogue.GetItem(i))->MakeStatString(plan.ResultState.GetValue(i), nS0, cstring);
             meanedSStrings[_knownStateIndex * DataPtr->GetNumAttributes() + i] = FString(cstring.c_str());
         }
-        FFileHelper::SaveStringArrayToFile(meanedSStrings, *(KILL_ENEMY_PATH + "s.txt"));
+        FFileHelper::SaveStringArrayToFile(meanedSStrings, *(GOAL_STATISTICS_PATH + "s.txt"));
+
+        float b = FCString::Atof(savedBStrings[_knownStateIndex].GetCharArray().GetData());
+        //we calculate mean b over all number of plans for given s0
+        savedBStrings[_knownStateIndex] = FString::SanitizeFloat(MathHelper::UpdateMean(b, (float)isGoalCompleted, nS0));
+        FFileHelper::SaveStringArrayToFile(savedBStrings, *(GOAL_STATISTICS_PATH + "b.txt"));
+        if (isGoalCompleted == true) //is the goal is not completed, we do not update meaned attributes (is this correct?)
+        {
+            int nSS = FCString::Atoi(savedNSSStrings[_knownStateIndex].GetCharArray().GetData());
+            savedNSSStrings[_knownStateIndex] = FString::FromInt(nSS + 1);
+            FFileHelper::SaveStringArrayToFile(savedNSSStrings, *(GOAL_STATISTICS_PATH + "nss.txt"));
+            for (int i = 0; i < DataPtr->GetNumAttributes(); i++)
+            {
+                std::string cstring(TCHAR_TO_ANSI(*meanedSSStrings[_knownStateIndex * DataPtr->GetNumAttributes() + i]));
+                if (cstring == "@")
+                    cstring = ""; //means this result state was not achieved before
+                (*DataPtr->AttributeCatalogue.GetItem(i))->MakeStatString(_currentState.GetValue(i), nSS, cstring);
+                meanedSSStrings[_knownStateIndex * DataPtr->GetNumAttributes() + i] = FString(cstring.c_str());
+            }
+            FFileHelper::SaveStringArrayToFile(meanedSSStrings, *(GOAL_STATISTICS_PATH + "ss.txt"));
+        }
+        
     }
     else
     {
-        FFileHelper::SaveStringArrayToFile(newS0Strings, *(KILL_ENEMY_PATH + "s0.txt"),
+        FFileHelper::SaveStringArrayToFile(newS0Strings, *(GOAL_STATISTICS_PATH + "s0.txt"),
             FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
-        FFileHelper::SaveStringToFile(FString::FromInt(1) + "\n", *(KILL_ENEMY_PATH + "n.txt"),
+        FFileHelper::SaveStringToFile(FString::FromInt(1) + "\n", *(GOAL_STATISTICS_PATH + "ns0.txt"),
             FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
         TArray<FString> meanedSString; //planned state to save
         for (int i = 0; i < plan.StartState.Size(); i++)
         {
             std::string cstring = "";
-            (*DataPtr->AttributeCatalogue.GetItem(i))->MakeMeanString(plan.ResultState.GetValue(i), 0, cstring);
+            (*DataPtr->AttributeCatalogue.GetItem(i))->MakeStatString(plan.ResultState.GetValue(i), 0, cstring);
                 meanedSString.Add(FString(cstring.c_str()));
         }
-        FFileHelper::SaveStringArrayToFile(meanedSString, *(KILL_ENEMY_PATH + "s.txt"),
+        FFileHelper::SaveStringArrayToFile(meanedSString, *(GOAL_STATISTICS_PATH + "s.txt"),
+            FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+
+        FFileHelper::SaveStringToFile(FString::FromInt(isGoalCompleted) + "\n", *(GOAL_STATISTICS_PATH + "b.txt"),
+            FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+        FFileHelper::SaveStringToFile(FString::FromInt(isGoalCompleted) + "\n", *(GOAL_STATISTICS_PATH + "nss.txt"),
+            FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+        ValueSet stateToSave = (isGoalCompleted == true) ? _currentState : ValueSet(DataPtr->GetNumAttributes());
+        TArray<FString> meanedSSString; //planned state to save
+        for (int i = 0; i < plan.StartState.Size(); i++)
+        {
+            if (isGoalCompleted == true)
+            {
+                std::string cstring = "";
+                (*DataPtr->AttributeCatalogue.GetItem(i))->MakeStatString(_currentState.GetValue(i), 0, cstring);
+                meanedSSString.Add(FString(cstring.c_str()));
+            }
+            else
+                meanedSSString.Add("@"); //placeholder for when the state wss not achieved to make indexing similar to s0.txt
+        }
+        FFileHelper::SaveStringArrayToFile(meanedSSString, *(GOAL_STATISTICS_PATH + "ss.txt"),
             FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
     }
 }
+
+void UGoapController::ReportGoalFailed() const
+{
+    if (_mustSaveStatistics == true)
+        SavePlanData(false);
+}
+
+

@@ -131,7 +131,16 @@ float Planner::GetDistanceDenominator() const
 
 float Planner::GetHeuristic(const Vertex& vertex/*active cond set*/, const Vertex& finish/*start state*/) const
 {
-    return 0.0f;
+    float heuristics = 0.0f;
+    for (int i = 0; i < vertex.ActiveConditionSet.Size(); i++)
+        if (vertex.ActiveConditionSet.IsAffected(i))
+        {
+            auto targetValue = std::static_pointer_cast<const CEqual>(finish.ActiveConditionSet.GetProperty(i))->Value;
+            heuristics+= vertex.ActiveConditionSet.GetProperty(i)->Evaluate(targetValue,
+                _data.AttributeCatalogue.GetItem(i)->get(),
+                vertex.PrevActionInstance.UserData);
+        }
+    return heuristics;
 }
 
 float Planner::GetHeuristicsDenominator() const

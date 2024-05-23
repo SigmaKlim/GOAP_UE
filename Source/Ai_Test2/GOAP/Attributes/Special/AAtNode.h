@@ -5,6 +5,10 @@
 class AAtNode : public IAttribute
 {
 public:
+    AAtNode()
+    {
+        _numPoints = DataPtr->Navigator->GetNumPoints();
+    }
     float GetDifference(t_value value1, t_value value2, const SupplementalData& userData) const override
     {
         if (value1 == -1 || value2 == -1) //we reserve node == -1 for the case when the real value is unknown 
@@ -19,36 +23,41 @@ public:
     {
         return DataPtr->Navigator->GetNodeName(value) + " (" + std::to_string(value) + ")"; 
     }
-    float MakeMeanString(t_value newVal, int num, std::string& stringData) const
+    void MakeStatString(t_value newVal, int num, std::string& stringData) const override
     {
+        auto biasedValue = newVal + BIAS;
+        MY_ASSERT(biasedValue >= 0 && biasedValue < _numPoints);
         std::string newSeriesString;
         if (stringData == "") //if its the first entry, we create series string
         {
-            for (int i = 0; i < DataPtr->GetNumAttributes(); i++)
-                if (i == newVal)
+            for (int i = 0; i < _numPoints; i++)
+                if (i == biasedValue)
                     newSeriesString.append("1 ");
                 else
                     newSeriesString.append("0 ");
             stringData = newSeriesString;
-            return newVal;
+            return;
         }
         else
         {
             std::istringstream input(stringData);
-            std::vector<int> frequencies(DataPtr->GetNumAttributes());
-            for (int i = 0; i < DataPtr->GetNumAttributes(); i++)
+            std::vector<int> frequencies(_numPoints);
+            for (int i = 0; i < _numPoints; i++)
             {
                 std::string frequencyString;
                 std::getline(input, frequencyString, ' ');
                 frequencies[i] = std::stoi(frequencyString);
-                if (i == newVal)
+                if (i == biasedValue)
                     frequencies[i]++;
                 newSeriesString.append(std::to_string(frequencies[i]) + " ");
             }
             stringData = newSeriesString;
-            return std::distance(frequencies.begin(),
-                std::max_element(frequencies.begin(), frequencies.end()));
+            return;
         }
     }
     inline static const float NAV_PATH_LENGTH_DIVISOR = 25.0f; //divide true distance to scale GoTo cost
+
+private:
+    int _numPoints;
+    const t_value BIAS = 1; //value(index) = index - BIAS; index = value(index) + BIAS
 };

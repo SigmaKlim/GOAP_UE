@@ -11,6 +11,7 @@
 #include "Actions/Specific/AcShoot.h"
 #include "Actions/Specific/ACUseDepletable.h"
 #include "Actions/Specific/AcReloadFromCover.h"
+#include "Actions/Specific/AcHeal.h"
 
 #include "Attributes/Basic/ABool.h"
 #include "Attributes/Basic/AEnum.h"

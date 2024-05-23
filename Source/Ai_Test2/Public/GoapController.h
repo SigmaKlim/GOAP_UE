@@ -60,7 +60,10 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsSurprised(const TMap<FString,int32>& effects) const;
 
-	void SavePlanData(const Plan& plan) const;
+	void SavePlanData(bool isGoalCompleted) const;
+
+	UFUNCTION(BlueprintCallable)
+	void ReportGoalFailed() const;
 
 	static const Strategist* StrategistPtr;
 	static const Planner* PlannerPtr;
@@ -79,8 +82,11 @@ private:
     std::vector<float> _goalPriorities;
 
 	//for statistics
+	bool _mustSaveStatistics = true;
 	mutable bool _isStateKnown = false;
 	mutable int _knownStateIndex;
+	//mutable int nS0; // cached to avoid read nS0.txt twice in 2 functions
+	const FString DATA_PATH = FPaths::ProjectUserDir() + "Data/";
 
 	friend DataBase;
 	friend Strategist;

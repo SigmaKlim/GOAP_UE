@@ -46,6 +46,16 @@ float ANavigatorN::GetDistance(int from, int to, const ACharacter* agent) const
 
 }
 
+int ANavigatorN::GetNumPoints() const
+{
+	return InterestPoints.Num();
+}
+
+int ANavigatorN::GetNumTags() const
+{
+	return organizer.size();
+}
+
 // Called when the game starts or when spawned
 void ANavigatorN::BeginPlay()
 {

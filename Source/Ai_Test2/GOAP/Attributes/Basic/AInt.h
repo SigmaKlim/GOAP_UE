@@ -23,16 +23,13 @@ public:
         return std::to_string(value);
     }
     
-    float MakeMeanString(t_value newVal, int num, std::string& stringData) const
+    void MakeStatString(t_value newVal, int num, std::string& stringData) const override
     {
         float newMean = newVal;
         if (stringData != "")
-        {
-            float prevMean = std::stof(stringData);
-            newMean = (prevMean * num + (float)newVal) / (num + 1);
-        }
+            newMean = MathHelper::UpdateMean(std::stof(stringData), (float)newVal, num);
         stringData = std::to_string(newMean);
-        return newMean; 
+        return; 
     }
 private:
     const t_value MAX_VALUE;

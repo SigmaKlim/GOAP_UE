@@ -78,9 +78,9 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 	SOFT_CHECK(data.RegisterAction("AcShoot", new AcShoot(	data.GetAttributeId("AEnemyStatus"), 
 																		data.GetAttributeId("AAmmoInMag"), 5)), "Failed to register AcShoot.");
 
-	SOFT_CHECK(data.RegisterAction("AcReload", new ACUseDepletable(data.GetAttributeId("AMagsLeft"),
+	/*SOFT_CHECK(data.RegisterAction("AcReload", new ACUseDepletable(data.GetAttributeId("AMagsLeft"),
 																				data.GetAttributeId("AAmmoInMag"), 20, 15, "magazines", "ammo")),
-																						"Failed to register AcReload.");
+																						"Failed to register AcReload.");*/
 	SOFT_CHECK(data.RegisterAction("AcReloadFromCover", new ACReloadFromCover(	data.GetAttributeId("AMagsLeft"),
 																							data.GetAttributeId("AAmmoInMag"), 
 																							data.GetAttributeId("AAtNode"), 
@@ -91,7 +91,8 @@ void AMyGameMode::InitializeGActions(DataBase& data, const Helper& helper)
 				data.GetAttributeId("AEnemyStatus"),
 				data.GetAttributeId("AIsCrouching"))), "Failed to register AcGoTo.");
 
-	//SOFT_CHECK(data.RegisterAction("AcHeal", new ))
+	SOFT_CHECK(data.RegisterAction("AcHeal", new AcHeal(data.GetAttributeId("AHpLeft"), 
+		data.GetAttributeId("AAtNode"), 3)), "Failed to register AcHeal");
 
 	for (auto& aName : data.ActionCatalogue.nRange)
 		ActionNames.Add(FString(aName->c_str()));
@@ -116,6 +117,9 @@ void AMyGameMode::InitializeGGoals(DataBase& data, const Helper& helper)
 	//SOFT_CHECK(data.RegisterGoal("GHide", new GTest(gHide, 5.0f)), "Failed to register GHide");
 
 	SOFT_CHECK(data.RegisterGoal("GKillEnemy", new GKill), "Failed to register GKillEnemy.");
+
+	//ConditionSet gHeal = helper.MakeConditionSet({ {"AHpLeft", new CGreater(99)} });
+	//SOFT_CHECK(data.RegisterGoal("GHeal", new GTest(gHeal, 5.0f)), "Failed to register GHeal.");
 
 	for (auto& gName : data.GoalCatalogue.nRange)
 		GoalNames.Add(FString(gName->c_str()));

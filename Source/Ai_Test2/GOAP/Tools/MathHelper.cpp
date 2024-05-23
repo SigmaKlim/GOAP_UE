@@ -4,13 +4,13 @@
 #include <iostream>
 #include <cmath>
 #pragma optimize( "", off )
-void MathHelper::MakeEmptyMatrix(Matrix& result, u_int dim)
+void MathHelper::MakeEmptyMatrix(GMatrix& result, u_int dim)
 {
-	result = Matrix(dim);
+	result = GMatrix(dim);
 	for (size_t i = 0; i < dim; i++)
 		result[i] = std::vector<u_int>(dim);
 }
-void MathHelper::MakeRndMtrx(Matrix& result, u_int dim, u_int lower, u_int upper)
+void MathHelper::MakeRndMtrx(GMatrix& result, u_int dim, u_int lower, u_int upper)
 {
 	MakeEmptyMatrix(result, dim);
 	for (size_t i = 0; i < dim; i++)
@@ -20,7 +20,7 @@ void MathHelper::MakeRndMtrx(Matrix& result, u_int dim, u_int lower, u_int upper
 	}
 }
 
-void MathHelper::MakeRndIncidenceMatrx(Matrix& result, u_int dim, float discChance)
+void MathHelper::MakeRndIncidenceMatrx(GMatrix& result, u_int dim, float discChance)
 {
 	MakeEmptyMatrix(result, dim);
 	int discValue = discChance * 100.0f;
@@ -31,7 +31,7 @@ void MathHelper::MakeRndIncidenceMatrx(Matrix& result, u_int dim, float discChan
 	}
 }
 
-int MathHelper::PrintMtrxToFile(const Matrix& toPrint,  std::ofstream& fout, unsigned char separator)
+int MathHelper::PrintMtrxToFile(const GMatrix& toPrint,  std::ofstream& fout, unsigned char separator)
 {
 	if (fout.is_open() == false)
 		return -1;
@@ -45,7 +45,7 @@ int MathHelper::PrintMtrxToFile(const Matrix& toPrint,  std::ofstream& fout, uns
 	return 0;
 }
 
-int MathHelper::ReadMtrxFromFile(Matrix& result, std::ifstream& fin, /*int startingPos,*/ unsigned char separator)
+int MathHelper::ReadMtrxFromFile(GMatrix& result, std::ifstream& fin, /*int startingPos,*/ unsigned char separator)
 {
 	if (fin.is_open() == false)
 		return -1;
@@ -69,10 +69,10 @@ int MathHelper::ReadMtrxFromFile(Matrix& result, std::ifstream& fin, /*int start
 	return 0;
 }
 
-void MathHelper::ToAdjacencyList(Matrix& incidence, Matrix& result)
+void MathHelper::ToAdjacencyList(GMatrix& incidence, GMatrix& result)
 {
 	auto dim = incidence.size();
-	result = Matrix(dim*dim, std::vector<u_int>(3)); //from, to, dist
+	result = GMatrix(dim*dim, std::vector<u_int>(3)); //from, to, dist
 	for (u_int i = 0; i < dim; i++)
 		for (u_int j = 0; j < dim; j++)
 			result[i * dim + j] = { i, j, incidence[i][j] };		

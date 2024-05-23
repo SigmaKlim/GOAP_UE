@@ -27,6 +27,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	float GetMaxDistance() const;
 
+	int GetNumPoints() const;
+	int GetNumTags() const;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -10,6 +10,7 @@ enum class EInterestTag : uint8
 {
 	eCover	UMETA(DisplayName = "Cover"),
 	eHealthStation UMETA(DisplayName = "HealthStation"),
+	eAmmoBox UMETA(DisplayName = "AmmoBox"),
 	eCount	UMETA(Hidden)
 
 };

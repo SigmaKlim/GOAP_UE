@@ -1,7 +1,7 @@
 ﻿#include "NavPathfinder.h"
 #include <random>
 
-NavPathfinder::NavPathfinder(const Matrix& distanceMatrix)
+NavPathfinder::NavPathfinder(const GMatrix& distanceMatrix)
 {
     _distanceMatrix = distanceMatrix;
     _numVertices = _distanceMatrix.size();

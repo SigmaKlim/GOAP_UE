@@ -12,6 +12,8 @@ public class Ai_Test2 : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
+		PublicDefinitions.Add("EIGEN_UE_OVERRIDE_ALLOCATORS=1");
+
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		

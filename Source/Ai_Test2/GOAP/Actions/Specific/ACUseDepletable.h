@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "../Basic/IActionConstructor.h"
-#include "../../Condition/Special/CLarger.h"
+#include "../Basic/IAction.h"
+#include "..\..\Conditions\Special\CGreater.h"
 
-class ACUseDepletable : public IActionConstructor
+class ACUseDepletable : public IAction
 {
 public:
     ACUseDepletable(size_t iNumDepletables, size_t iAffectedAttribute, t_value delta, float cost,
@@ -10,10 +10,11 @@ public:
     _iNumDepletables(iNumDepletables), _iAffectedAttribute(iAffectedAttribute), _delta(delta), _cost(cost),
     _depletableName(depletableName), _affectedAttributeName(affectedAttributeName) {}
     
-    void ConstructActions(std::vector<Action>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
+    virtual void ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions, const SupplementalData& userData) override;
+    ActionInstanceData ConstructActionInstancePosteriori(const ValueSet& prevState, const ActionInstanceData& prioriActionInstance) override;
     float GetMaxCost() const override;
     
-private:
+protected:
     size_t _iNumDepletables;   //index of the attribute showing the minimal required number of depletables
     size_t _iAffectedAttribute; //index of the attribute which value is affected by using the depletable (medkit, ammo)
     t_value _delta;             //hpLeft += delta
@@ -23,7 +24,7 @@ private:
     std::string _affectedAttributeName;
 };
 
-inline void ACUseDepletable::ConstructActions(std::vector<Action>& actions, const ConditionSet& requiredConditions,
+inline void ACUseDepletable::ConstructActionInstancesPriori(std::vector<ActionInstanceData>& actions, const ConditionSet& requiredConditions,
     const SupplementalData& userData)
 {
     if (requiredConditions.IsAffected(_iAffectedAttribute) == true)
@@ -31,20 +32,31 @@ inline void ACUseDepletable::ConstructActions(std::vector<Action>& actions, cons
         int minNumDepletables = 0;
         if (requiredConditions.IsAffected(_iNumDepletables) == true)
         {
-            auto* cLargerNumDepletables = static_cast<const CLarger*>(requiredConditions.GetProperty(_iNumDepletables).get());
-            minNumDepletables = cLargerNumDepletables->Value + 1; //Make minimal required number of health kits larger by 1, as this action depletes 1 kit
+            auto* cGreaterNumDepletables = static_cast<const CGreater*>(requiredConditions.GetProperty(_iNumDepletables).get());
+            minNumDepletables = cGreaterNumDepletables->Value + 1; //Make minimal required number of health kits Greater by 1, as this action depletes 1 kit
         }
-        ConditionSet cs(numAttributes);
-        cs.SetCondition(_iNumDepletables, new CLarger(minNumDepletables));
-        auto* cLargerAffected = static_cast<const CLarger*>(requiredConditions.GetProperty(_iAffectedAttribute).get());
-        t_value requiredValue = cLargerAffected->Value;
-        cs.SetCondition(_iAffectedAttribute, new CLarger(requiredValue - _delta)); //Make minimal required value of the affected attribute less by delta, as this action increases it by delta
-        ValueSet vs(numAttributes);
+        ConditionSet cs(DataPtr->GetNumAttributes());
+        cs.SetCondition(_iNumDepletables, new CGreater(minNumDepletables));
+        auto* cGreaterAffected = static_cast<const CGreater*>(requiredConditions.GetProperty(_iAffectedAttribute).get());
+        t_value requiredValue = cGreaterAffected->Value + 1;
+        cs.SetCondition(_iAffectedAttribute, new CGreater(requiredValue - _delta - 1)); //Make minimal required value of the affected attribute less by delta, as this action increases it by delta
+        ValueSet vs(DataPtr->GetNumAttributes());
         vs.SetValue(_iAffectedAttribute, requiredValue);
-        std::string stringData = "(+" + std::to_string(_delta) + " " + _affectedAttributeName + "); req. " + _depletableName + "s: " + std::to_string(minNumDepletables);
-        Action action(cs, vs, _cost, userData, stringData);
+        ActionInstanceData action(cs, vs, _cost, userData, "");
         actions.push_back(action);
     }
+}
+
+inline ActionInstanceData ACUseDepletable::ConstructActionInstancePosteriori(
+    const ValueSet& prevState, const ActionInstanceData& prioriActionInstance)
+{
+    auto posterioriActionInstance = IAction::ConstructActionInstancePosteriori(prevState, prioriActionInstance);
+    t_value prevNumDepletables = prevState.GetValue(_iNumDepletables);
+    t_value prevAffectedValue = prevState.GetValue(_iAffectedAttribute);
+    posterioriActionInstance.Effects.SetValue(_iNumDepletables, prevNumDepletables - 1);
+    posterioriActionInstance.Effects.SetValue(_iAffectedAttribute, prevAffectedValue + _delta);
+    posterioriActionInstance.StringData = "(+" + std::to_string(_delta) + " " + _affectedAttributeName + ";  " + _depletableName + "s left: " + std::to_string(prevNumDepletables - 1) + ")";
+    return posterioriActionInstance;
 }
 
 inline float ACUseDepletable::GetMaxCost() const

@@ -9,6 +9,8 @@
 
 #include "Tools/MathHelper.h"
 #include "Tools/FibonacciHeap.hpp"
+#include "Tools/AssertMacro.h"
+
 #include <unordered_set>
 #include <unordered_map>
 
@@ -169,7 +171,7 @@ public:
 					auto* neighborElement = discQueue.insert({ neighborNode });
 					discovered.insert({ neighborId, neighborElement });
 					discoveredHeapSizeDelta++;
-					assert(cameFrom.insert({neighborId, currentNode.VertexId}).second == true);
+					MY_ASSERT(cameFrom.insert({neighborId, currentNode.VertexId}).second == true);
 				}
 				else
 				{

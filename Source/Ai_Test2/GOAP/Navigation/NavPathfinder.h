@@ -5,7 +5,7 @@
 class NavPathfinder : public AStarSolver<unsigned>
 {
 public:    
-    NavPathfinder(const Matrix& distanceMatrix);
+    NavPathfinder(const GMatrix& distanceMatrix);
     
 private:
     void GetNeighbors(std::vector<unsigned>& neighbors, std::vector<float>& distances, const unsigned& vertex, const unsigned& finish = 0) const override;
@@ -13,7 +13,7 @@ private:
     float GetDistanceDenominator() const override;
     
     unsigned _numVertices;
-    Matrix _distanceMatrix;
+    GMatrix _distanceMatrix;
 
     //sum of first N long roads length, where N is number of vertices; used for normalization 
     unsigned _accumDist;

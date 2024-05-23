@@ -1,14 +1,33 @@
 ﻿#include "Planner.h"
+#include <unordered_set>
+#include <vector>
 
-#include "Condition/Basic/ConditionSet.h"
-#include "Condition/Special/CEqual.h"
+#include "GoapController.h"
+#include "Conditions/Basic/ConditionSet.h"
+#include "Conditions/Special/CEqual.h"
+#include "CoreMinimal.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "../SoftCheckMacro.h"
 
-
-Plan::Plan(const Planner& planner, const ValueSet& startState, const std::string& goalName) :
-                                StartState(startState), Goal(*planner._goalCatalogue.GetItem(goalName))
+Plan::Plan(size_t numAttributes) :
+    StartState(numAttributes), Goal(numAttributes),
+    ResultState(numAttributes)
 {
-    GoalName = goalName;
+}
+
+void Plan::Clear()
+{
+    StartState.Clear();
+    GoalName = "";
+    Goal.Clear();
+    Success = false;
+    ActionIds.clear();
+    ActionNames.clear();
+    ActionInstances.clear();
     TotalCost = 0.0f;
+    ResultState.Clear();
+    TData = TelemetryData();
 }
 
 
@@ -23,51 +42,61 @@ size_t VertexKey<Vertex>::operator()(const Vertex& k) const
     return hash;
 }
 
-
-Planner::Planner()
+Planner::Planner(const DataBase& data) : _data(data)
 {
-    ConditionSet::_attributeCataloguePtr = &this->_attributeCatalogue;
+    UGoapController::PlannerPtr		= this;
 }
 
 
-Plan Planner::ConstructPlan(const ValueSet& startState, std::string goalName, SupplementalData initData) const
+bool Planner::ConstructPlan(Plan& plan, SupplementalData initData) const
 {
-    Plan plan(*this, startState, goalName);
-    assert(startState.NumAffected() == startState.Size());
+    MY_ASSERT(plan.StartState.NumAffected() == plan.StartState.Size());
     //We convert startState to a condition set made of Equal conditions
-    ConditionSet targetConditionSet(_attributeCatalogue.Size());
-    for (unsigned i = 0; i < _attributeCatalogue.Size(); i++)
+    ConditionSet targetConditionSet(_data.AttributeCatalogue.Size());
+    for (unsigned i = 0; i < _data.AttributeCatalogue.Size(); i++)
         targetConditionSet.SetCondition(i, new CEqual(plan.StartState.GetProperty(i)));
-    Vertex targetVertex(targetConditionSet);
-    
+    ActionInstanceData dummy(ConditionSet(_data.AttributeCatalogue.Size()), ValueSet(_data.AttributeCatalogue.Size()), 0.0f, SupplementalData(), "");
+    Vertex targetVertex(targetConditionSet,
+                            std::numeric_limits<size_t>::max(),
+                            dummy,
+                            0,
+                            "");
+    ActionInstanceData initDummy(ConditionSet(_data.AttributeCatalogue.Size()), ValueSet(_data.AttributeCatalogue.Size()), 0.0f, initData, "");
     Vertex departureVertex( plan.Goal,
                             std::numeric_limits<size_t>::max(),
+                            initDummy,
                             0,
-                            initData,
                             "");
     Path<Vertex> path;
-    plan.success = Pathfind(path, departureVertex, targetVertex, &plan.TelemetryData);
-    if (plan.success != false)
+    plan.Success = Pathfind(path, departureVertex, targetVertex, &plan.TData);
+    if (plan.Success == true)
     {
+        ValueSet prevState = plan.StartState;
         for (size_t i = path.Vertices.size() - 1; i > 0; i--) //iterate from back to start, because we build plan from the last action to the first
         {
             plan.ActionIds.push_back(path.Vertices[i].PrevActionId);
-            plan.ActionNames.push_back(*_actionConstructorCatalogue.GetName(path.Vertices[i].PrevActionId));
-            plan.ActionStrings.push_back(path.Vertices[i].PrevActionStringData);
+            plan.ActionNames.push_back(*_data.ActionCatalogue.GetName(path.Vertices[i].PrevActionId));
+            auto anotherActionInstance = (*_data.ActionCatalogue.GetItem(path.Vertices[i].PrevActionId))->ConstructActionInstancePosteriori(prevState, path.Vertices[i].PrevActionInstance);
+            plan.ActionInstances.push_back(anotherActionInstance);
+            prevState.Modify(anotherActionInstance.Effects);
         }
         plan.TotalCost = path.Cost;
+        plan.ResultState = prevState;
+        return true;
     }
-    return plan;
+    return false;
 }
+
+
 
 void Planner::GetNeighbors(std::vector<Vertex>& neighbors, std::vector<float>& distances, const Vertex& vertex, const Vertex& finish) const
 {
     if (vertex.ActionCtr > MAX_NUM_ACTIONS_PER_PLAN)
         return;
-    for (unsigned i = 0; i < _actionConstructorCatalogue.Size(); i++)
+    for (unsigned i = 0; i < _data.ActionCatalogue.Size(); i++)
     {
-        std::vector<Action> actions;
-        (*_actionConstructorCatalogue.GetItem(i))->ConstructActions(actions, vertex.ActiveConditionSet, vertex.UserData);
+        std::vector<ActionInstanceData> actions;
+        (*_data.ActionCatalogue.GetItem(i))->ConstructActionInstancesPriori(actions, vertex.ActiveConditionSet, vertex.PrevActionInstance.UserData);
         for (auto& action : actions)
         {
             ConditionSet reducedConditionSet(vertex.ActiveConditionSet.Size());
@@ -77,10 +106,9 @@ void Planner::GetNeighbors(std::vector<Vertex>& neighbors, std::vector<float>& d
             if (isActionUseful == true && isActionLegit == true)
             {
                 neighbors.push_back({   mergedConditionSet, i,
+                                        action,
                                         vertex.ActionCtr + 1,
-                                        action.UserData,
-                                        *_actionConstructorCatalogue.GetName(i),
-                                        action.StringData});
+                                        *_data.ActionCatalogue.GetName(i)});
                 distances.push_back(action.Cost);
             }
         }
@@ -96,32 +124,28 @@ float Planner::GetDistanceDenominator() const
 {
     static float accumActionCostSum = 0.0f;
     if (accumActionCostSum == 0.0f)
-        for (auto& action : _actionConstructorCatalogue.ObjectIterator)
+        for (auto& action : _data.ActionCatalogue.oRange)
             accumActionCostSum += action->GetMaxCost();
     return accumActionCostSum;
 }
 
 float Planner::GetHeuristic(const Vertex& vertex/*active cond set*/, const Vertex& finish/*start state*/) const
 {
-    return 0.0f;
+    float heuristics = 0.0f;
+    for (int i = 0; i < vertex.ActiveConditionSet.Size(); i++)
+        if (vertex.ActiveConditionSet.IsAffected(i))
+        {
+            auto targetValue = std::static_pointer_cast<const CEqual>(finish.ActiveConditionSet.GetProperty(i))->Value;
+            heuristics+= vertex.ActiveConditionSet.GetProperty(i)->Evaluate(targetValue,
+                _data.AttributeCatalogue.GetItem(i)->get(),
+                vertex.PrevActionInstance.UserData);
+        }
+    return heuristics;
 }
 
 float Planner::GetHeuristicsDenominator() const
 {
     return AStarSolver<Vertex>::GetHeuristicsDenominator();
 }
-
-size_t Planner::GetNumAttributes() const
-{
-    return _attributeCatalogue.Size();
-}
-
-size_t Planner::GetAttributeId(const std::string& name) const
-{
-    auto* idPtr = _attributeCatalogue.GetId(name);
-    assert(idPtr);
-    return *idPtr;
-}
-
 
 

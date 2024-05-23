@@ -3,49 +3,49 @@
 #include <cassert>
 #include <vector>
 
+#include "AssertMacro.h"
+
 template <typename T>
 class PropertyList
 {
 public:
+    PropertyList() = default;
     PropertyList(size_t size) : _properties(size), _affectedMask(size, false){}
-    PropertyList(const PropertyList& other) : _properties(other.Size()), _affectedMask(other.Size(), false)
+    PropertyList(const PropertyList& other) : _properties(other._properties), _affectedMask(other._affectedMask), _affectedPropertiesNum(other._affectedPropertiesNum)
     {
-        for (unsigned i = 0; i < other.Size(); i++)
-            if (other.IsAffected(i))
-                SetProperty(i, other.GetProperty(i));
     }
     PropertyList& operator=(const PropertyList& other)
     {
-        _properties.resize(other.Size());
-        _affectedMask.resize(other.Size(), false);
-        _affectedPropertiesNum = 0;
-        for (unsigned i = 0; i < other.Size(); i++)
-            if (other.IsAffected(i))
-                SetProperty(i, other.GetProperty(i));
+        _properties = other._properties;
+        _affectedMask = other._affectedMask;
+        _affectedPropertiesNum = other._affectedPropertiesNum;
         return *this;
     }
     virtual ~PropertyList() = default;
     bool IsAffected(size_t index) const
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         return _affectedMask[index];
     }
     void SetProperty(size_t index, const T& property)
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         _properties[index] = property;
-        _affectedMask[index] = true;
-        _affectedPropertiesNum++;
+        if (_affectedMask[index] == false)
+        {
+            _affectedMask[index] = true;
+            _affectedPropertiesNum++;
+        }
     }
     const T& GetProperty(size_t index) const
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         return _properties[index];
     }
     //Marks property by index as unaffected. Does NOT delete it from memory.
     void ClearValue(size_t index)
     {
-        assert(index < Size());
+        MY_ASSERT(index < Size());
         _affectedMask[index] = false;
         _affectedPropertiesNum--;
     }
@@ -58,10 +58,19 @@ public:
     {
         return _affectedPropertiesNum;
     }
+    void Clear()
+    {
+        for (size_t i = 0; i < Size(); i++)
+            ClearValue(i);
+    }
+    const std::vector<T>& GetPropertyArray() const
+    {
+        return _properties;
+    }
 protected:
     std::vector<T>      _properties;
     std::vector<bool>   _affectedMask;
-    size_t            _affectedPropertiesNum = 0;
+    size_t              _affectedPropertiesNum = 0;
     
 };
 

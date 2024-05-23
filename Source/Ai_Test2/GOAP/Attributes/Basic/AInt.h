@@ -3,6 +3,7 @@
 
 #include "IAttribute.h"
 
+
 class AInt : public IAttribute
 {
 public:
@@ -16,7 +17,20 @@ public:
     {
         return (float)MAX_VALUE;
     }
+
+    std::string GetEnumeratorString(t_value value) const override
+    {
+        return std::to_string(value);
+    }
     
+    void MakeStatString(t_value newVal, int num, std::string& stringData) const override
+    {
+        float newMean = newVal;
+        if (stringData != "")
+            newMean = MathHelper::UpdateMean(std::stof(stringData), (float)newVal, num);
+        stringData = std::to_string(newMean);
+        return; 
+    }
 private:
     const t_value MAX_VALUE;
 };

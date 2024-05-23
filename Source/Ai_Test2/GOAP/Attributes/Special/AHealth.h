@@ -2,7 +2,7 @@
 
 #include "../Basic/AInt.h"
 
-const t_value MAX_HEALTH = 30;
+const t_value MAX_HEALTH = 100;
 
 class AHealth : public AInt
 {
